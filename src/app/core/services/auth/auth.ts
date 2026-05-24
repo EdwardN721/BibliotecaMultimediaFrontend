@@ -7,8 +7,8 @@ import { tap } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root',
 })
-export class Auth {
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/auth`;
+export class AuthService {
+  private readonly apiUrl = `${environment.apiUrl}/api/v1/Auth`;
 
   private userState = signal<UserState>({
     isAuthenticated: false,
