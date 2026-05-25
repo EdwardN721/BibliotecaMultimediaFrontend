@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth/auth';
 import { Router } from '@angular/router';
-import { email } from '@angular/forms/signals';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -37,8 +36,8 @@ export class Login {
     const credentials = this.loginForm.getRawValue();
 
     this.authService.login(credentials).subscribe({
-      next: (response) => {
-        if (response.role === 'Admin'){
+      next: () => {
+        if (this.authService.isAdmin()){
           this.router.navigate(['/admin'])
         } else {
           this.router.navigate(['/user'])

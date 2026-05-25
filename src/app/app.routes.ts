@@ -10,20 +10,38 @@ export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [adminGuard],
-    loadComponent: () => import('./features/admin/dashboard/dashboard').then((m) => m.Dashboard),
+    loadComponent: () => import('./shared/components/layout/layout').then((m) => m.LayoutComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/admin/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        path: 'items',
+        loadComponent: () =>
+          import('./features/admin/items/items.component').then((m) => m.ItemsComponent),
+      }
+    ],
   },
   {
     path: 'user',
     canActivate: [userGuard],
-    loadComponent: () => import('./features/user/dashboard/dashboard').then((m) => m.Dashboard),
+    loadComponent: () => import('./shared/components/layout/layout').then((m) => m.LayoutComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/user/dashboard/dashboard').then((m) => m.Dashboard),
+      }
+    ]
   },
   {
     path: '',
     redirectTo: 'login',
-    pathMatch: 'full'
+    pathMatch: 'full',
   },
   {
     path: '**',
-    redirectTo: 'login'
-  }
+    redirectTo: 'login',
+  },
 ];

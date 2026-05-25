@@ -1,0 +1,76 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-white tracking-tight">Administración de Catálogo</h2>
+      <p class="text-slate-400 text-sm mt-1">Inserta, edita o elimina los ítems de la biblioteca global.</p>
+    </div>
+    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-lg shadow-blue-500/20">
+      + Registrar Nuevo Ítem
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="bg-red-500/10 border border-red-500/30 text-red-400 p-4 rounded-lg text-sm">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-900 border-b border-slate-800 text-xs uppercase tracking-wider text-slate-500">
+            <th class="px-6 py-4 font-semibold">Título</th>
+            <th class="px-6 py-4 font-semibold">Tipo</th>
+            <th class="px-6 py-4 font-semibold">Plataforma</th>
+            <th class="px-6 py-4 font-semibold">Calificación</th>
+            <th class="px-6 py-4 font-semibold text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-800/50">
+          @if (isLoading()) {
+            <tr>
+              <td colspan="5" class="px-6 py-12 text-center text-slate-400">
+                <div class="flex flex-col items-center justify-center">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
+                  <span>Conectando con PostgreSQL...</span>
+                </div>
+              </td>
+            </tr>
+          } @else {
+            @for (item of items(); track item.id) {
+              <tr class="hover:bg-slate-800/50 transition-colors group">
+                <td class="px-6 py-4">
+                  <div class="text-sm font-bold text-slate-200">{{ item.title }}</div>
+                  <div class="text-xs text-slate-500">{{ item.format }} • {{ item.releaseDate || 'N/A' }}</div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    {{ item.mediaType }}
+                  </span>
+                </td>
+                <td class="px-6 py-4"><span class="text-sm text-slate-300">{{ item.platform }}</span></td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center space-x-1">
+                    <span class="text-amber-400">★</span>
+                    <span class="text-sm font-bold text-slate-300">{{ item.rating }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <button class="text-slate-400 hover:text-blue-400 transition-colors px-2">Editar</button>
+                  <button class="text-slate-400 hover:text-red-400 transition-colors px-2">Borrar</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-slate-400">
+                  No hay ítems registrados en la base de datos actualmente.
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

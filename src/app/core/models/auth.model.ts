@@ -1,7 +1,11 @@
 export interface AuthResponse {
     token: string;
-    role: 'Admin' | 'User';
-    userId: string;
+    user: {
+    id: string;
+    email: string;
+    nombre: string;
+    nombreCompleto: string;
+  };
 }
 
 export interface UserState{
