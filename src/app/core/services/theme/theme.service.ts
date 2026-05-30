@@ -24,17 +24,14 @@ export class ThemeService {
     this.isDarkMode.set(isDark);
     
     const htmlElement = document.documentElement;
+    
+    // 👇 Esto es todo lo que necesitamos hacer. PrimeNG y Tailwind harán el resto mágicamente 👇
     if (isDark) {
       htmlElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
       htmlElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
-    }
-
-    const themeLink = document.getElementById('theme-css') as HTMLLinkElement;
-    if (themeLink) {
-      themeLink.href = isDark ? 'themes/lara-dark-blue/theme.css' : 'themes/lara-light-blue/theme.css';
     }
   }
 }

@@ -19,20 +19,7 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/primeng/resources/themes/lara-light-blue",
-                "output": "/themes/lara-light-blue"
-              },
-              {
-                "glob": "**/*",
-                "input": "node_modules/primeng/resources/themes/lara-dark-blue",
-                "output": "/themes/lara-dark-blue"
-              }
+              "public"
             ],
             "styles": ["src/styles.css"]
           },
