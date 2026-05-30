@@ -36,9 +36,8 @@ export class ItemsComponent implements OnInit {
 
     this.itemService.obtenerItems(miFiltro, 1, 10).subscribe({
       next: (response) => {
-        console.log('Respuesta de /paginado:', response);
-        
-        this.items.set(response.registros); 
+       
+        this.items.set(response); 
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -47,5 +46,17 @@ export class ItemsComponent implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  eliminar(id: string, titulo: string) {
+    if (confirm(`¿Eliminar "${titulo}" permanentemente?`)) {
+      this.itemService.eliminarItem(id).subscribe({
+        next: () => {
+          // Actualiza la señal borrando el ítem localmente
+          this.items.update(lista => lista.filter(item => item.id !== id));
+        },
+        error: (err) => console.error('Error al eliminar:', err)
+      });
+    }
   }
 }

@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
-import { ItemDto } from '@core/models/item.model';
+import { ActualizarItemDto, CrearItemDto, ItemDto } from '@core/models/item.model';
 import { FiltroItem } from '@core/models/filtoPaginado.model'
 import { RespuestaPaginada } from '@core/models/paginacion.model'
 
@@ -17,15 +17,27 @@ export class ItemService {
     filtoPaginado: FiltroItem,
     pageNumber: number = 1, 
     pageSize: number = 10
-  ): Observable<RespuestaPaginada<ItemDto>>{
+  ): Observable<ItemDto[]>{
     let params: HttpParams = this.obtenerfiltro(filtoPaginado, pageNumber, pageSize)
       
-      return this.http.get<RespuestaPaginada<ItemDto>>
+      return this.http.get<ItemDto[]>
         (`${this.apiUrl}/paginado`, { params });
   }
 
   obtenerItemPorId(id: string): Observable<ItemDto> {
     return this.http.get<ItemDto>(`${this.apiUrl}/${id}`);
+  }
+
+  crearItem(item: CrearItemDto): Observable<ItemDto>{
+    return this.http.post<ItemDto>(this.apiUrl, item);
+  }
+
+  actualizarItem(id: string, item: ActualizarItemDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, item);
+  }
+  
+  eliminarItem(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   private obtenerfiltro(filtro: FiltroItem, pageNumber: number, pageSize: number) : HttpParams {

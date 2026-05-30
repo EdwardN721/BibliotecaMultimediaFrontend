@@ -2,12 +2,12 @@
   <div class="flex items-center justify-between">
     <div>
       <h2 class="text-2xl font-bold text-white tracking-tight">Administración de Catálogo</h2>
-      <p class="text-slate-400 text-sm mt-1">Gestiona los ítems de tu plataforma.</p>
+      <p class="text-slate-400 text-sm mt-1">Gestiona los ítems de tu biblioteca multimedia.</p>
     </div>
-    <p-button label="+ Registrar Nuevo Ítem" icon="pi pi-plus" routerLink="/admin/items/crear" styleClass="p-button-primary"></p-button>
+    <p-button label="+ Registrar Nuevo Ítem" routerLink="/admin/items/crear" styleClass="p-button-primary"></p-button>
   </div>
 
-  <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-sm overflow-hidden">
+  <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
     <p-table 
       [value]="items()" 
       [loading]="isLoading()"
@@ -18,29 +18,29 @@
       
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="title">Título <p-sortIcon field="title"></p-sortIcon></th>
-          <th pSortableColumn="mediaType">Tipo <p-sortIcon field="mediaType"></p-sortIcon></th>
-          <th pSortableColumn="platform">Plataforma <p-sortIcon field="platform"></p-sortIcon></th>
-          <th pSortableColumn="rating">Calificación <p-sortIcon field="rating"></p-sortIcon></th>
-          <th class="text-right">Acciones</th>
+          <th pSortableColumn="title" class="bg-slate-800 text-slate-300 border-slate-700">Título <p-sortIcon field="title"></p-sortIcon></th>
+          <th pSortableColumn="mediaType" class="bg-slate-800 text-slate-300 border-slate-700">Tipo <p-sortIcon field="mediaType"></p-sortIcon></th>
+          <th pSortableColumn="platform" class="bg-slate-800 text-slate-300 border-slate-700">Plataforma <p-sortIcon field="platform"></p-sortIcon></th>
+          <th pSortableColumn="rating" class="bg-slate-800 text-slate-300 border-slate-700">Calificación <p-sortIcon field="rating"></p-sortIcon></th>
+          <th class="bg-slate-800 text-slate-300 border-slate-700 text-right">Acciones</th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-item>
-        <tr>
-          <td class="font-bold">{{ item.title }}</td>
-          <td>{{ item.mediaType }}</td>
-          <td>{{ item.platform }}</td>
-          <td><span class="text-amber-400">★</span> {{ item.rating }}/10</td>
-          <td class="text-right space-x-2">
+        <tr class="bg-slate-900 hover:bg-slate-800/80 text-slate-200">
+          <td class="border-slate-800 font-bold">{{ item.title }}</td>
+          <td class="border-slate-800">{{ item.mediaType }}</td>
+          <td class="border-slate-800">{{ item.platform }}</td>
+          <td class="border-slate-800"><span class="text-amber-400">★</span> {{ item.rating }}/10</td>
+          <td class="border-slate-800 text-right space-x-2">
             <p-button icon="pi pi-pencil" styleClass="p-button-rounded p-button-text p-button-info" [routerLink]="['/admin/items/editar', item.id]"></p-button>
-            <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-text p-button-danger" ></p-button>
+            <p-button icon="pi pi-trash" styleClass="p-button-rounded p-button-text p-button-danger" (onClick)="eliminar(item.id, item.title)"></p-button>
           </td>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="emptymessage">
-        <tr><td colspan="5" class="text-center p-4">No se encontraron ítems.</td></tr>
+        <tr><td colspan="5" class="text-center p-8 bg-slate-900 text-slate-400 border-slate-800">No se encontraron ítems.</td></tr>
       </ng-template>
     </p-table>
   </div>

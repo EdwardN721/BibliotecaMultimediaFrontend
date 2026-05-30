@@ -15,3 +15,29 @@ export interface ItemDto {
   createdAt: string;
   updatedAt?: string;
 }
+
+export interface CrearItemDto {
+  title: string;
+  releaseDate: string;
+  rating: number;
+  isFavorite: boolean;
+  Metadata: any;
+  mediaTypeId: string;
+  formatId: string;
+  platformId: string;
+  genreIds: string[];
+  creatorIds: string[];
+}
+
+export interface ActualizarItemDto {
+  title: string;
+  releaseDate: string;
+  rating: number;
+  isFavorite: boolean;
+  Metadata: any;
+  mediaTypeId: string;
+  formatId: string;
+  platformId: string;
+  genreIds: string[];
+  creatorIds: string[];
+}

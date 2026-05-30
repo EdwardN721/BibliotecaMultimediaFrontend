@@ -1,1 +1,42 @@
 <p>item-create.component works!</p>
+<div class="max-w-3xl mx-auto space-y-6">
+  <div class="flex items-center space-x-4">
+    <p-button icon="pi pi-arrow-left" styleClass="p-button-rounded p-button-secondary p-button-text" routerLink="/admin/items"></p-button>
+    <div>
+      <h2 class="text-2xl font-bold text-white">Registrar Nuevo Ítem</h2>
+      <p class="text-slate-400 text-sm">Añade una nueva entrada al catálogo de tu biblioteca.</p>
+    </div>
+  </div>
+
+  <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl">
+    <form [formGroup]="itemForm" (ngSubmit)="guardar()" class="flex flex-col space-y-6">
+      
+      <div class="flex flex-col gap-2">
+        <label class="text-sm font-semibold text-slate-300">Título del Ítem *</label>
+        <input pInputText formControlName="title" placeholder="Ej. The Legend of Zelda" class="w-full bg-slate-950 text-white border border-slate-700 focus:border-blue-500 p-3 rounded-lg"/>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-300">Fecha de Lanzamiento</label>
+          <input pInputText type="date" formControlName="releaseDate" class="w-full bg-slate-950 text-white border border-slate-700 focus:border-blue-500 p-3 rounded-lg"/>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-300">Calificación (0-10)</label>
+          <p-inputNumber formControlName="rating" [min]="0" [max]="10" styleClass="w-full" inputStyleClass="w-full bg-slate-950 text-white border border-slate-700 focus:border-blue-500 p-3 rounded-lg"></p-inputNumber>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 pt-2">
+        <p-checkbox formControlName="isFavorite" [binary]="true" inputId="fav"></p-checkbox>
+        <label for="fav" class="text-sm font-semibold text-slate-300 cursor-pointer">Marcar como Favorito</label>
+      </div>
+
+      <div class="flex justify-end space-x-4 pt-8 border-t border-slate-800">
+        <p-button label="Cancelar" styleClass="p-button-text p-button-secondary" routerLink="/admin/items"></p-button>
+        <p-button label="Guardar Registro" icon="pi pi-check" type="submit" [loading]="isSubmitting()" [disabled]="itemForm.invalid"></p-button>
+      </div>
+    </form>
+  </div>
+</div>
