@@ -1,52 +1,73 @@
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-8">
   
   <div class="flex items-center space-x-4">
-    <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" routerLink="/admin/items"></p-button>
+    <button routerLink="/admin/items" class="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-slate-200 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-colors shadow-sm hover:shadow-md">
+      <i class="pi pi-arrow-left"></i>
+    </button>
     <div>
-      <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Registrar Nuevo Ítem</h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400">Introduce la información para indexar la obra multimedia.</p>
+      <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Registrar Nuevo Ítem</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Añade una película, serie o videojuego al catálogo maestro.</p>
     </div>
   </div>
 
-  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 sm:p-8 shadow-sm">
-    <form [formGroup]="itemForm" (ngSubmit)="guardar()" class="space-y-6">
+  <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-2xl dark:shadow-black/50 border border-slate-200 dark:border-slate-800 p-6 sm:p-10 relative overflow-hidden">
+    
+    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+
+    <form [formGroup]="itemForm" (ngSubmit)="guardar()" class="space-y-8 mt-2">
       
       <div class="flex flex-col gap-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Título del Ítem *</label>
-        <input pInputText formControlName="title" placeholder="Ej. Cyberpunk 2077" class="w-full" />
+        <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Título de la Obra <span class="text-red-500">*</span></label>
+        <p-iconField iconPosition="left">
+          <p-inputIcon class="pi pi-bookmark text-slate-400 dark:text-slate-500" />
+          <input pInputText formControlName="title" placeholder="Ej. The Last of Us Part II" 
+                 class="w-full p-3 pl-10 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner" />
+        </p-iconField>
         @if (itemForm.get('title')?.invalid && itemForm.get('title')?.touched) {
-          <small class="text-red-500 font-medium">El campo título es requerido.</small>
+          <small class="text-red-500 font-medium flex items-center gap-1 mt-1"><i class="pi pi-info-circle text-xs"></i> El título es obligatorio.</small>
         }
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Fecha de Lanzamiento *</label>
-          <input pInputText type="date" formControlName="releaseDate" class="w-full" />
-          @if (itemForm.get('releaseDate')?.invalid && itemForm.get('releaseDate')?.touched) {
-            <small class="text-red-500 font-medium">La fecha de lanzamiento es obligatoria.</small>
-          }
+          <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Lanzamiento <span class="text-red-500">*</span></label>
+          <p-iconField iconPosition="left">
+            <p-inputIcon class="pi pi-calendar text-slate-400 dark:text-slate-500" />
+            <input pInputText type="date" formControlName="releaseDate" 
+                   class="w-full p-3 pl-10 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner" />
+          </p-iconField>
         </div>
 
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Calificación (0-10) *</label>
-          <p-inputNumber formControlName="rating" [min]="0" [max]="10" [minFractionDigits]="0" [maxFractionDigits]="1" styleClass="w-full" inputStyleClass="w-full"></p-inputNumber>
+          <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Calificación <span class="text-red-500">*</span></label>
+          <p-inputNumber formControlName="rating" [min]="0" [max]="10" [minFractionDigits]="0" [maxFractionDigits]="1" styleClass="w-full" 
+                         inputStyleClass="w-full p-3 text-center font-black text-blue-600 dark:text-blue-400 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner" placeholder="0 - 10"></p-inputNumber>
         </div>
       </div>
 
       <div class="flex flex-col gap-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Descripción / Sinopsis</label>
-        <textarea pTextarea formControlName="descripcion" rows="4" placeholder="Breve resumen del contenido..." class="w-full resize-none"></textarea>
+        <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Sinopsis / Descripción</label>
+        <textarea pTextarea formControlName="descripcion" rows="5" placeholder="Escribe un breve resumen de la trama..." 
+                  class="w-full p-3 resize-none leading-relaxed bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner"></textarea>
       </div>
 
-      <div class="flex items-center space-x-3 pt-2">
-        <p-checkbox formControlName="isFavorite" [binary]="true" inputId="isFav"></p-checkbox>
-        <label for="isFav" class="text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer select-none">Destacar como ítem favorito de la biblioteca</label>
+      <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-4 flex items-center space-x-4 hover:border-blue-500/50 transition-colors shadow-inner">
+        <p-checkbox formControlName="isFavorite" [binary]="true" inputId="isFav" 
+                    class="bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-600 focus-within:ring-2 focus-within:ring-blue-500/50"></p-checkbox>
+        <div>
+          <label for="isFav" class="text-sm font-bold text-slate-800 dark:text-slate-200 cursor-pointer block select-none">Destacar como Favorito</label>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Aparecerá en la sección de recomendaciones principales de la biblioteca.</p>
+        </div>
       </div>
 
-      <div class="flex justify-end space-x-3 pt-6 border-t border-slate-100 dark:border-slate-800">
-        <p-button label="Cancelar" severity="secondary" [text]="true" routerLink="/admin/items"></p-button>
-        <p-button label="Guardar Ítem" icon="pi pi-check" type="submit" [loading]="isSubmitting()" [disabled]="itemForm.invalid"></p-button>
+      <div class="flex items-center justify-end space-x-4 pt-6 border-t border-slate-200 dark:border-slate-800">
+        <button type="button" routerLink="/admin/items" 
+                class="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent hover:border-slate-300 dark:hover:border-slate-600 transition-all">
+          Cancelar
+        </button>
+        <p-button label="Guardar Registro" icon="pi pi-check" type="submit" [loading]="isSubmitting()" [disabled]="itemForm.invalid" 
+                  styleClass="px-8 py-2.5 bg-blue-600 hover:bg-blue-500 text-white border-none rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-blue-500/60 hover:-translate-y-0.5 transition-all duration-300 font-bold"></p-button>
       </div>
 
     </form>

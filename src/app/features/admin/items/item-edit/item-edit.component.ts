@@ -9,9 +9,12 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
   selector: 'app-item-edit.component',
+  standalone: true,
   imports: [
     CommonModule, 
     ReactiveFormsModule, 
@@ -20,7 +23,9 @@ import { TextareaModule } from 'primeng/textarea';
     InputTextModule, 
     InputNumberModule, 
     CheckboxModule,
-    TextareaModule
+    TextareaModule,
+    IconFieldModule, 
+    InputIconModule
   ],
   templateUrl: './item-edit.component.html',
   styleUrl: './item-edit.component.css',

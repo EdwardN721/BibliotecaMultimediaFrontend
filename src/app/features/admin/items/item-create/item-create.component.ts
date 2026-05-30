@@ -9,11 +9,15 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 @Component({
   selector: 'app-item-create.component',
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, ButtonModule, InputTextModule,
-     InputNumberModule, CheckboxModule, TextareaModule],
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ButtonModule, 
+    InputTextModule, InputNumberModule, CheckboxModule, TextareaModule,
+    IconFieldModule, InputIconModule],
   templateUrl: './item-create.component.html',
   styleUrl: './item-create.component.css',
 })
@@ -26,7 +30,7 @@ export class ItemCreateComponent {
   
   itemForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(150)]],
-    releaseDate: ['', [Validators.required]], // Requerido en tu nuevo DTO
+    releaseDate: ['', [Validators.required]], 
     rating: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
     isFavorite: [false],
     descripcion: [''],
@@ -52,7 +56,7 @@ export class ItemCreateComponent {
     this.itemService.crearItem(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.router.navigate(['./admin/items']);
+        this.router.navigate(['/admin/items']);
       },
       error: (err) => {
         console.error('Error:', err);

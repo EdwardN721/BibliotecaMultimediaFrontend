@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { AuthService } from '../../../core/services/auth/auth';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -16,11 +16,24 @@ export class LayoutComponent {
   public router: Router = inject(Router);
   public themeService: ThemeService = inject(ThemeService);
 
-  public currentRoleLabel = () => this.authService.isAdmin()
-    ? 'Administrador' : 'Usuario';
+  isMobileMenuOpen: WritableSignal<boolean> = signal<boolean>(false);
 
-    logout(){
-      this.authService.logout();
-      this.router.navigate(['/login']);
-    }
+  currentRoleLabel(): string {
+    if (this.authService.isAdmin()) return 'Administrador';
+    if (this.authService.isRegularUser()) return 'Usuario Estándar';
+    return 'Invitado';
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen.update(val => !val);
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen.set(false);
+  }
 }
