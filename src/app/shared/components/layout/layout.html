@@ -1,9 +1,9 @@
-<div class="min-h-screen flex bg-slate-950 text-slate-100 font-sans">
+<div class="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
   
-  <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between p-4 hidden md:flex">
+  <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between p-4 hidden md:flex transition-colors duration-300 z-20">
     <div>
       <div class="flex items-center space-x-2 px-2 py-4 mb-6">
-        <span class="text-2xl font-black tracking-wider text-white">
+        <span class="text-2xl font-black tracking-wider text-slate-900 dark:text-white">
           STREAM<span class="text-blue-500">BOX</span>
         </span>
       </div>
@@ -11,67 +11,74 @@
       <nav class="space-y-1.5">
         
         @if (authService.isAdmin()) {
-          <div class="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+          <div class="px-3 mb-2 mt-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             Gestión de Biblioteca
           </div>
-          <a routerLink="/admin" routerLinkActive="bg-blue-600/10 text-blue-400 border-l-4 border-blue-500" [routerLinkActiveOptions]="{exact: true}"
-            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all">
+          <a routerLink="/admin" routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-500" [routerLinkActiveOptions]="{exact: true}"
+            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all">
+            <i class="pi pi-home"></i>
             <span>Panel de Control</span>
           </a>
-          <a routerLink="/admin/items" routerLinkActive="bg-blue-600/10 text-blue-400 border-l-4 border-blue-500"
-            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all">
-            <span>Registrar Nuevos Ítems</span>
+          <a routerLink="/admin/catalogos" routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-500"
+            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all">
+            <i class="pi pi-tags"></i>
+            <span>Géneros</span>
           </a>
-          <a routerLink="/admin/catalogos" routerLinkActive="bg-blue-600/10 text-blue-400 border-l-4 border-blue-500"
-            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all">
-            <span>Configurar Catálogos</span>
+          <a routerLink="/admin/items" routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-500"
+            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all">
+            <i class="pi pi-database"></i>
+            <span>Artículos Multimeda</span>
           </a>
         }
 
         @if (authService.isRegularUser()) {
-          <div class="px-3 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+          <div class="px-3 mb-2 mt-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             Mi Espacio Personal
           </div>
-          <a routerLink="/user" routerLinkActive="bg-emerald-600/10 text-emerald-400 border-l-4 border-emerald-500" [routerLinkActiveOptions]="{exact: true}"
-            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all">
+          <a routerLink="/user" routerLinkActive="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-l-4 border-emerald-500" [routerLinkActiveOptions]="{exact: true}"
+            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all">
+            <i class="pi pi-box"></i>
             <span>Mi Inventario</span>
           </a>
-          <a routerLink="/user/explorar" routerLinkActive="bg-emerald-600/10 text-emerald-400 border-l-4 border-emerald-500"
-            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-all">
-            <span>Explorar y Tomar Ítems</span>
+          <a routerLink="/user/explorar" routerLinkActive="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-l-4 border-emerald-500"
+            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all">
+            <i class="pi pi-compass"></i>
+            <span>Explorar Ítems</span>
           </a>
         }
 
       </nav>
     </div>
 
-    <div class="bg-slate-800/40 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+    <div class="bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex items-center justify-between">
       <div class="truncate">
-        <p class="text-xs text-slate-500 font-medium">Conectado como:</p>
-        <p class="text-sm font-bold text-slate-300 truncate">{{ currentRoleLabel() }}</p>
+        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Conectado como:</p>
+        <p class="text-sm font-bold text-slate-800 dark:text-slate-300 truncate">{{ currentRoleLabel() }}</p>
       </div>
     </div>
   </aside>
 
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
     
-    <header class="bg-slate-900 border-b border-slate-800 h-16 flex items-center justify-between px-6 shadow-sm z-10">
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 flex items-center justify-between px-6 shadow-sm z-10 transition-colors duration-300">
       <div>
-        <span class="text-sm text-slate-400 font-medium hidden sm:block">Consola de Control Multimedia</span>
+        <span class="text-sm text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Consola de Control Multimedia</span>
       </div>
       
       <div class="flex items-center space-x-4">
-        
         <button (click)="themeService.toggleTheme()" 
-          class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400">
-          <i class="pi text-xl" [ngClass]="themeService.isDarkMode() ? 'pi-sun' : 'pi-moon'"></i>   
+          class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors text-slate-600 dark:text-slate-400">
+          <i class="pi text-lg" [ngClass]="themeService.isDarkMode() ? 'pi-sun' : 'pi-moon'"></i>   
         </button>
 
-        <button (click)="logout()" ... > Salir </button>
+        <button (click)="logout()" class="flex items-center space-x-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors bg-red-50 dark:bg-red-900/10 px-4 py-2 rounded-full">
+          <i class="pi pi-sign-out"></i>
+          <span>Salir</span>
+        </button>
       </div>
     </header>
 
-    <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-950">
+    <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <router-outlet></router-outlet>
     </main>
 

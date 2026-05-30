@@ -14,6 +14,7 @@ export interface ItemDto {
   creators: string[];
   createdAt: string;
   updatedAt?: string;
+  metadata?: object;
 }
 
 export interface CrearItemDto {

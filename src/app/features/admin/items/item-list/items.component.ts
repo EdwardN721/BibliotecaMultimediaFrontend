@@ -6,10 +6,15 @@ import { RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { FiltroItem } from '@core/models/filtoPaginado.model';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-items.component',
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule],
+  imports: [CommonModule, RouterModule, TableModule, ButtonModule,
+    IconFieldModule, InputIconModule, InputTextModule
+  ],
   templateUrl: './items.component.html',
   styleUrl: './items.component.css',
 })
@@ -18,7 +23,6 @@ export class ItemsComponent implements OnInit {
 
   items: WritableSignal<ItemDto[]> = signal<ItemDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
-
   errorMessage: WritableSignal<string | null> = signal<string | null>(null);
 
   ngOnInit() {

@@ -8,17 +8,19 @@ import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-item-edit.component',
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterModule,
-    ButtonModule,
-    InputTextModule,
-    InputNumberModule,
+    CommonModule, 
+    ReactiveFormsModule, 
+    RouterModule, 
+    ButtonModule, 
+    InputTextModule, 
+    InputNumberModule, 
     CheckboxModule,
+    TextareaModule
   ],
   templateUrl: './item-edit.component.html',
   styleUrl: './item-edit.component.css',
@@ -38,20 +40,35 @@ export class ItemEditComponent implements OnInit {
     releaseDate: ['', [Validators.required]],
     rating: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
     isFavorite: [false],
+    descripcion: [''],
     Metadata: [{}],
-    mediaTypeId: [''],
-    formatId: [''],
-    platformId: [''],
-    genreIds: [[]],
-    creatorIds: [[]],
+    mediaTypeId: [''], 
+    formatId: [''], 
+    platformId: [''], 
+    genreIds: [[]], 
+    creatorIds: [[]]
   });
 
   ngOnInit() {
     this.itemId = this.route.snapshot.paramMap.get('id')!;
+
     this.itemService.obtenerItemPorId(this.itemId).subscribe({
       next: (item) => {
-        const formattedDate = item.releaseDate ? item.releaseDate.split('T')[0] : '';
-        this.itemForm.patchValue({ ...item, releaseDate: formattedDate });
+        const fechaLimpia = item.releaseDate ? item.releaseDate.split('T')[0] : '';
+
+        this.itemForm.patchValue({
+          title: item.title,
+          releaseDate: fechaLimpia,
+          rating: item.rating,
+          isFavorite: item.isFavorite,
+          descripcion: item.descripcion || '',
+          Metadata: item.metadata || {},
+          mediaTypeId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', 
+          formatId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          platformId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+          genreIds: [],
+          creatorIds: []
+        });
         this.isLoadingData.set(false);
       },
       error: (err) => {
@@ -63,21 +80,22 @@ export class ItemEditComponent implements OnInit {
 
   actualizar() {
     if (this.itemForm.invalid) return;
-    
+
     this.isSubmitting.set(true);
-    
     const formValues = this.itemForm.getRawValue();
+
+    // Construcción limpia del body respetando el contrato de ActualizarItemDto
     const payload: ActualizarItemDto = {
-        title: formValues.title,
-        releaseDate: formValues.releaseDate,
-        rating: formValues.rating,
-        isFavorite: formValues.isFavorite,
-        Metadata: formValues.Metadata || {},
-        mediaTypeId: formValues.mediaTypeId,
-        formatId: formValues.formatId,
-        platformId: formValues.platformId,
-        genreIds: formValues.genreIds,
-        creatorIds: formValues.creatorIds
+      title: formValues.title,
+      releaseDate: formValues.releaseDate,
+      rating: formValues.rating,
+      isFavorite: formValues.isFavorite,
+      Metadata: formValues.Metadata || {},
+      mediaTypeId: formValues.mediaTypeId || '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      formatId: formValues.formatId || '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      platformId: formValues.platformId || '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      genreIds: formValues.genreIds || [],
+      creatorIds: formValues.creatorIds || []
     };
 
     this.itemService.actualizarItem(this.itemId, payload).subscribe({
@@ -86,7 +104,7 @@ export class ItemEditComponent implements OnInit {
         this.router.navigate(['/admin/items']);
       },
       error: (err) => {
-        console.error('Error:', err);
+        console.error('Error al actualizar el registro:', err);
         this.isSubmitting.set(false);
       }
     });

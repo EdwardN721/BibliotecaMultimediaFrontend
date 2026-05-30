@@ -8,11 +8,12 @@ import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-item-create.component',
   imports: [CommonModule, ReactiveFormsModule, RouterModule, ButtonModule, InputTextModule,
-     InputNumberModule, CheckboxModule],
+     InputNumberModule, CheckboxModule, TextareaModule],
   templateUrl: './item-create.component.html',
   styleUrl: './item-create.component.css',
 })
@@ -25,13 +26,15 @@ export class ItemCreateComponent {
   
   itemForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(150)]],
-    releaseDate: ['', [Validators.required]], 
+    releaseDate: ['', [Validators.required]], // Requerido en tu nuevo DTO
     rating: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
     isFavorite: [false],
-    Metadata: [{}], // Agregamos el objeto vacío por defecto
-    mediaTypeId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'], // IDs temporales
-    formatId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
-    platformId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
+    descripcion: [''],
+    Metadata: [{}], 
+    
+    mediaTypeId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'], 
+    formatId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],    
+    platformId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],  
     genreIds: [[]],
     creatorIds: [[]]
   });

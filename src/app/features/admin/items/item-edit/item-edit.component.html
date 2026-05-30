@@ -1,47 +1,56 @@
 <div class="max-w-3xl mx-auto space-y-6">
+  
   <div class="flex items-center space-x-4">
-    <p-button icon="pi pi-arrow-left" styleClass="p-button-rounded p-button-secondary p-button-text" routerLink="/admin/items"></p-button>
+    <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" routerLink="/admin/items"></p-button>
     <div>
-      <h2 class="text-2xl font-bold text-white">Editar Ítem</h2>
-      <p class="text-slate-400 text-sm">Actualiza los datos del catálogo.</p>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Modificar Ítem</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400">Actualiza los campos necesarios de la entidad multimedia.</p>
     </div>
   </div>
 
-  <div class="bg-slate-900 border border-slate-800 rounded-xl p-8 shadow-xl">
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 sm:p-8 shadow-sm">
     
     @if (isLoadingData()) {
       <div class="flex flex-col items-center justify-center py-16">
         <i class="pi pi-spin pi-spinner text-4xl text-blue-500 mb-4"></i>
-        <p class="text-slate-400 font-medium">Buscando información en la base de datos...</p>
+        <p class="text-slate-500 dark:text-slate-400 font-medium">Sincronizando información con PostgreSQL...</p>
       </div>
-    } @else {
-      <form [formGroup]="itemForm" (ngSubmit)="actualizar()" class="flex flex-col space-y-6">
+    } 
+    @else {
+      <form [formGroup]="itemForm" (ngSubmit)="actualizar()" class="space-y-6">
+        
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-semibold text-slate-300">Título del Ítem *</label>
-          <input pInputText formControlName="title" class="w-full bg-slate-950 text-white border border-slate-700 focus:border-blue-500 p-3 rounded-lg"/>
+          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Título del Ítem *</label>
+          <input pInputText formControlName="title" class="w-full" />
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-semibold text-slate-300">Fecha de Lanzamiento</label>
-            <input pInputText type="date" formControlName="releaseDate" class="w-full bg-slate-950 text-white border border-slate-700 focus:border-blue-500 p-3 rounded-lg"/>
+            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Fecha de Lanzamiento *</label>
+            <input pInputText type="date" formControlName="releaseDate" class="w-full" />
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-semibold text-slate-300">Calificación (0-10)</label>
-            <p-inputNumber formControlName="rating" [min]="0" [max]="10" styleClass="w-full" inputStyleClass="w-full bg-slate-950 text-white border border-slate-700 focus:border-blue-500 p-3 rounded-lg"></p-inputNumber>
+            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Calificación (0-10) *</label>
+            <p-inputNumber formControlName="rating" [min]="0" [max]="10" [minFractionDigits]="0" [maxFractionDigits]="1" styleClass="w-full" inputStyleClass="w-full"></p-inputNumber>
           </div>
         </div>
 
-        <div class="flex items-center gap-3 pt-2">
-          <p-checkbox formControlName="isFavorite" [binary]="true" inputId="fav"></p-checkbox>
-          <label for="fav" class="text-sm font-semibold text-slate-300 cursor-pointer">Marcar como Favorito</label>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">Descripción / Sinopsis</label>
+          <textarea pTextarea formControlName="descripcion" rows="4" class="w-full resize-none"></textarea>
         </div>
 
-        <div class="flex justify-end space-x-4 pt-8 border-t border-slate-800">
-          <p-button label="Cancelar" styleClass="p-button-text p-button-secondary" routerLink="/admin/items"></p-button>
+        <div class="flex items-center space-x-3 pt-2">
+          <p-checkbox formControlName="isFavorite" [binary]="true" inputId="isFavEdit"></p-checkbox>
+          <label for="isFavEdit" class="text-sm font-semibold text-slate-700 dark:text-slate-300 cursor-pointer select-none">Destacar como ítem favorito de la biblioteca</label>
+        </div>
+
+        <div class="flex justify-end space-x-4 pt-8 border-t border-slate-100 dark:border-slate-800">
+          <p-button label="Cancelar" severity="secondary" [text]="true" routerLink="/admin/items"></p-button>
           <p-button label="Guardar Cambios" icon="pi pi-save" type="submit" [loading]="isSubmitting()" [disabled]="itemForm.invalid"></p-button>
         </div>
+
       </form>
     }
   </div>
