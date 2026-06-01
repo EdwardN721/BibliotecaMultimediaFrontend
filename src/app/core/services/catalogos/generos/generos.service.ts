@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '@env/environment.development';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { Observable } from 'rxjs';
-import { GeneroDto } from '@core/models/generos.model';
+import { ActualizarGeneroDto, AgregarGeneroDto, GeneroDto } from '@core/models/generos.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,15 +26,15 @@ export class GenerosService {
     return this.http.get<GeneroDto>(`${this.apiUrl}/${id}`);
   }
 
-  agregarFormato(formato: AgregarFormatoDto): Observable<FormatosDto> {
-    return this.http.post<FormatosDto>(this.apiUrl, formato);
+  agregarGenero(genero: AgregarGeneroDto): Observable<GeneroDto> {
+    return this.http.post<GeneroDto>(this.apiUrl, genero);
   }
 
-  actualizarFormato(id: string, formato: ActualizarFormatoDto): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}`, formato);
+  actualizarGenero(id: string, genero: ActualizarGeneroDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, genero);
   }
 
-  eliminarFormato(id: string): Observable<void> {
+  eliminarGenero(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
