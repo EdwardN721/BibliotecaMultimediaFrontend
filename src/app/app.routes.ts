@@ -36,6 +36,16 @@ export const routes: Routes = [
         path: 'catalogos',
         loadChildren: () => import('@features/admin/catalogos/formatos/routes/formatos.rotes')
           .then((m) => m.FORMATOS_ROUTES)
+      },
+      {
+        path: 'catalogos',
+        loadChildren: () => import('@features/admin/catalogos/generos/routes/genero.routes')
+          .then((m) => m.GENERO_ROUTES)
+      },
+      {
+        path: 'catalogos',
+        loadChildren: () => import('@features/admin/catalogos/tipo-medio/routes/tipo-medio.routes')
+          .then((m) => m.TIPO_MEDIO_ROUTES)
       }
     ],
   },

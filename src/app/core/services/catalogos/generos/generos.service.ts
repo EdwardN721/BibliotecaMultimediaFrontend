@@ -10,7 +10,7 @@ import { ActualizarGeneroDto, AgregarGeneroDto, GeneroDto } from '@core/models/g
 })
 export class GenerosService {
   private http: HttpClient = inject(HttpClient);
-  private readonly apiUrl: string = `${environment.apiUrl}/api/v1/Genre`;
+  private readonly apiUrl: string = `${environment.apiUrl}/api/v1/Genres`;
 
   obtenerGeneros(
     filtroPaginado: FiltroGlobal,
