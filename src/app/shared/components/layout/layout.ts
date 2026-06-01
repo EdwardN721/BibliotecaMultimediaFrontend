@@ -3,11 +3,13 @@ import { AuthService } from '../../../core/services/auth/auth';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '@core/services/theme/theme.service';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ConfirmDialog, Toast],
   templateUrl: './layout.html',
   styleUrl: './layout.css',
 })
@@ -31,14 +33,14 @@ export class LayoutComponent {
   }
 
   toggleMobileMenu() {
-    this.isMobileMenuOpen.update(val => !val);
+    this.isMobileMenuOpen.update((val) => !val);
   }
 
   closeMobileMenu() {
     this.isMobileMenuOpen.set(false);
   }
 
-  toggleCatalogos(){
-    this.isCatalogosOpen.update(val => !val);
+  toggleCatalogos() {
+    this.isCatalogosOpen.update((val) => !val);
   }
 }

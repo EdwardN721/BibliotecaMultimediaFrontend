@@ -58,8 +58,8 @@ export class PlataformasComponent implements OnInit {
         this.items.set(response);
         this.messageService.add({
           severity: 'success',
-          summary: 'Plataformas',
-          detail: `Plataformas cargadas con éxito.`,
+          summary: 'Éxito',
+          detail: `Éxito al cargar plataformas.`,
         });
         this.isLoading.set(false);
       },
