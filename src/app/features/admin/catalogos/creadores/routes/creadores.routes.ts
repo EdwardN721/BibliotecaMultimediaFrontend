@@ -14,7 +14,7 @@ export const CREADORES_ROUTES = [
       ),
   },
   {
-    path: 'creadores/editar/:id', // Todavia no creado
+    path: 'creadores/editar/:id',
     loadComponent: () =>
       import('@features/admin/catalogos/creadores/creadores-editar/creadores-editar.component').then(
         (m) => m.CreadoresEditarComponent,

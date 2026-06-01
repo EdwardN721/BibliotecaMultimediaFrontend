@@ -4,7 +4,9 @@
       <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Catálogo Creadores</h2>
       <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Catalogo para administrar a los creadores de contenidos.</p>
     </div>
-    <p-button label="Registrar Nuevo Creador" icon="pi pi-plus" routerLink="/admin/catalogos/creadores/nuevo" class="px-6 py-2.5 shadow-md shadow-blue-500/20"></p-button>
+    <p-button label="Agregar Nuevo Creador" icon="pi pi-plus" routerLink="/admin/catalogos/creadores/nuevo"
+              styleClass="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white border-none rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-blue-500/60 hover:-translate-y-0.5 transition-all duration-300 font-bold">
+    </p-button>
   </div>
 
   @if (errorMessage()) {

@@ -1,22 +1,21 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
-import { AgregarCreadorDto } from '@core/models/creadores.model';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api'
+import { MessageService } from 'primeng/api';
+import { AgregarFormatoDto } from '@core/models/formatos.model';
+import { FormatosService } from '@core/services/catalogos/formatos/formatos.service';
 
 @Component({
-  selector: 'app-creadores-nuevo.component',
+  selector: 'app-formato-nuevo.component',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -30,41 +29,40 @@ import { MessageService } from 'primeng/api'
     InputIconModule,
     ToastModule,
   ],
-  templateUrl: './creadores-nuevo.component.html',
-  styleUrl: './creadores-nuevo.component.css',
+  templateUrl: './formato-nuevo.component.html',
+  styleUrl: './formato-nuevo.component.css',
 })
-export class CreadoresNuevoComponent {
+export class FormatoNuevoComponent {
   private fb: FormBuilder = inject(FormBuilder);
-  private creadorService: CreadoresService = inject(CreadoresService);
+  private formatoService: FormatosService = inject(FormatosService);
   private router: Router = inject(Router);
   private messageService = inject(MessageService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
 
-  creadorForm: FormGroup = this.fb.group({
-    nombre: ['', [Validators.required, Validators.maxLength(255)]],
-    biografia: ['', [Validators.maxLength(1500)]],
+  formatoForm: FormGroup = this.fb.group({
+    nombre: ['', [Validators.required, Validators.maxLength(50)]],
   });
 
   guardar() {
-    if (this.creadorForm.invalid) {
-      this.creadorForm.markAllAsTouched();
+    if (this.formatoForm.invalid) {
+      this.formatoForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
 
-    const payload: AgregarCreadorDto = this.creadorForm.getRawValue();
+    const payload: AgregarFormatoDto = this.formatoForm.getRawValue();
 
-    this.creadorService.agregarCreador(payload).subscribe({
+    this.formatoService.agregarFormato(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.messageService.add({
           severity: 'success',
           summary: 'Registro exitoso',
-          detail: `El creador "${payload.nombre}" se agregó al catálogo.`,
+          detail: `El formato "${payload.nombre}" se agregó al catálogo.`,
         });
-        this.router.navigate(['/admin/catalogos/creadores']);
+        this.router.navigate(['/admin/catalogos/formatos']);
       },
       error: (err) => {
         console.error('Error: ', err);

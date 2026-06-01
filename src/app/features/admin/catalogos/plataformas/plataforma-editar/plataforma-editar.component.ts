@@ -9,14 +9,13 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { ActualizarCreadorDto } from '@core/models/creadores.model';
+import { PlataformasService } from '@core/services/catalogos/plataformas/plataformas.service';
+import { ActualizarPlataformaDto } from '@core/models/plataformas.model';
 
 @Component({
-  selector: 'app-creadores-editar.component',
-  standalone: true,
+  selector: 'app-plataforma-editar.component',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -30,36 +29,34 @@ import { ActualizarCreadorDto } from '@core/models/creadores.model';
     InputIconModule,
     ToastModule,
   ],
-  templateUrl: './creadores-editar.component.html',
-  styleUrl: './creadores-editar.component.css',
+  templateUrl: './plataforma-editar.component.html',
+  styleUrl: './plataforma-editar.component.css',
 })
-export class CreadoresEditarComponent implements OnInit {
+export class PlataformaEditarComponent implements OnInit {
   private fb: FormBuilder = inject(FormBuilder);
-  private creadoresServices: CreadoresService = inject(CreadoresService);
+  private plataformaServices: PlataformasService = inject(PlataformasService);
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
   private messageService = inject(MessageService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
   isLoadingData: WritableSignal<boolean> = signal<boolean>(true);
-  creadorId: string = '';
+  plataformaId: string = '';
 
-  creadorForm: FormGroup = this.fb.group({
-    nombre: ['', [Validators.required, Validators.maxLength(255)]],
-    biografia: ['', [Validators.maxLength(1500)]],
+  plataformaForm: FormGroup = this.fb.group({
+    nombre: ['', [Validators.required, Validators.maxLength(50)]],
   });
 
   ngOnInit() {
-    this.creadorId = this.route.snapshot.paramMap.get('id')!;
+    this.plataformaId = this.route.snapshot.paramMap.get('id')!;
 
-    this.creadoresServices.obtenerCreadorPorId(this.creadorId).subscribe({
-      next: (creador) => {
-        this.creadorForm.patchValue({
-          nombre: creador.nombre,
-          biografia: creador.biografia,
-        });
-        this.isLoadingData.set(false);
-      },
+    this.plataformaServices.obtenerPlataformaPorId(this.plataformaId).subscribe({
+        next: (plataforma) => {
+          this.plataformaForm.patchValue({
+            nombre: plataforma.nombre
+          });
+          this.isLoadingData.set(false);
+        },
       error: (err) => {
         console.error('Error:', err);
         this.messageService.add({
@@ -68,22 +65,21 @@ export class CreadoresEditarComponent implements OnInit {
           detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
         });
         this.router.navigate(['/admin/catalogos']);
-      },
+      }
     });
   }
 
-  actualizar(){
-    if (this.creadorForm.invalid) return;
+  actualizar() {
+    if (this.plataformaForm.invalid) return;
 
     this.isSubmitting.set(true);
-    const formValues = this.creadorForm.getRawValue();
+    const formValues = this.plataformaForm.getRawValue();
 
-    const payload: ActualizarCreadorDto = {
-      nombre: formValues.nombre,
-      biografia: formValues.biografia
+    const payload: ActualizarPlataformaDto = {
+      nombre: formValues.nombre
     };
 
-    this.creadoresServices.actualizarCreador(this.creadorId, payload).subscribe({
+    this.plataformaServices.actualizarPlataforma(this.plataformaId, payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.messageService.add({
@@ -102,6 +98,6 @@ export class CreadoresEditarComponent implements OnInit {
         });
         this.isSubmitting.set(false);
       }
-    });
+    })
   }
 }

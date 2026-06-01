@@ -3,7 +3,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '@env/environment';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { Observable } from 'rxjs';
-import { PlataformaDto } from '@core/models/plataformas.model';
+import {
+  ActualizarPlataformaDto,
+  AgregarPlataformaDto,
+  PlataformaDto,
+} from '@core/models/plataformas.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +16,7 @@ export class PlataformasService {
   private http: HttpClient = inject(HttpClient);
   private readonly apiUrl: string = `${environment.apiUrl}/api/v1/Platform`;
 
-  obtenerItems(
+  obtenerPlataformas(
     filtoPaginado: FiltroGlobal,
     pageNumber: number = 1,
     pageSize: number = 10,
@@ -20,6 +24,18 @@ export class PlataformasService {
     let params: HttpParams = this.obtenerfiltro(filtoPaginado, pageNumber, pageSize);
 
     return this.http.get<PlataformaDto[]>(`${this.apiUrl}/paginado`, { params });
+  }
+
+  obtenerPlataformaPorId(id: string): Observable<PlataformaDto> {
+    return this.http.get<PlataformaDto>(`${this.apiUrl}/${id}`);
+  }
+
+  agregarPlataforma(plataforma: AgregarPlataformaDto): Observable<PlataformaDto> {
+    return this.http.post<PlataformaDto>(this.apiUrl, plataforma);
+  }
+
+  actualizarPlataforma(id: string, plataforma: ActualizarPlataformaDto): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, plataforma);
   }
 
   eliminarPlataforma(id: string): Observable<void> {

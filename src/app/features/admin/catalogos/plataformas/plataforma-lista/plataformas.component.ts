@@ -53,7 +53,7 @@ export class PlataformasComponent implements OnInit {
       ordenDescendente: true,
     };
 
-    this.plataformaService.obtenerItems(miFiltro, 1, 10).subscribe({
+    this.plataformaService.obtenerPlataformas(miFiltro, 1, 10).subscribe({
       next: (response) => {
         this.items.set(response);
         this.messageService.add({

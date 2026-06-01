@@ -1,11 +1,10 @@
 <div class="max-w-7xl mx-auto space-y-8">
-
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/60">
     <div>
-      <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Catálogo Multimedia</h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Gestión general de películas, series y videojuegos.</p>
+      <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Catálogo formatos</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Catalogo para administrar los formatos de contenidos.</p>
     </div>
-    <p-button label="Registrar Nuevo Artículo" icon="pi pi-plus" routerLink="/admin/items/crear"
+    <p-button label="Agregar Nuevo Formato" icon="pi pi-plus" routerLink="/admin/catalogos/formatos/nuevo"
               styleClass="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white border-none rounded-xl shadow-lg shadow-blue-600/30 hover:shadow-blue-500/60 hover:-translate-y-0.5 transition-all duration-300 font-bold">
     </p-button>
   </div>
@@ -18,9 +17,8 @@
   }
 
   <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-
     <p-table
-      [value]="items()"
+      [value]="formatos()"
       [loading]="isLoading()"
       [paginator]="true"
       [rows]="10"
@@ -32,59 +30,40 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="title" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Título <p-sortIcon field="title"></p-sortIcon></th>
-          <th pSortableColumn="mediaType" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Tipo <p-sortIcon field="mediaType"></p-sortIcon></th>
-          <th pSortableColumn="platform" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Plataforma <p-sortIcon field="platform"></p-sortIcon></th>
-          <th pSortableColumn="rating" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-center px-6 py-4">Calificación <p-sortIcon field="rating"></p-sortIcon></th>
+          <th pSortableColumn="nombre" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+          <th pSortableColumn="createdAt" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Agregado <p-sortIcon field="createdAt"></p-sortIcon></th>
+          <th pSortableColumn="updatedAt" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-center px-6 py-4">Modificado <p-sortIcon field="updatedAt"></p-sortIcon></th>
           <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-right px-6 py-4">Acciones</th>
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-item>
+      <ng-template pTemplate="body" let-creador>
         <tr class="border-b border-slate-100 dark:border-slate-800/60 transition-colors">
 
           <td class="px-6 py-4">
             <div class="flex items-center space-x-3">
-              @if (item.isFavorite) {
-                <i class="pi pi-star-fill text-amber-400 text-xs" title="Favorito"></i>
-              }
               <div>
-                <div class="font-bold text-slate-900 dark:text-white text-base">{{ item.title }}</div>
-                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium tracking-wide">
-                  {{ item.format }} &bull; {{ item.releaseDate | date:'yyyy' }}
-                </div>
+                <div class="font-bold text-slate-900 dark:text-white text-base">{{ creador.nombre }}</div>
               </div>
             </div>
           </td>
 
-          <td class="px-6 py-4">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide border
-              bg-indigo-50 text-indigo-700 border-indigo-200
-              dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800/50">
-              {{ item.mediaType }}
-            </span>
-          </td>
-
           <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 text-sm">
-            {{ item.platform }}
+            {{ creador.createdAt | fechaCDMX }}
           </td>
 
           <td class="px-6 py-4 text-center">
-            <div class="inline-flex items-center justify-center space-x-1 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
-              <span class="text-amber-500 dark:text-amber-400 text-sm"><i class="pi pi-star-fill"></i></span>
-              <span class="font-black text-slate-800 dark:text-slate-100">{{ item.rating }}</span>
-              <span class="text-xs text-slate-400 font-bold">/ 10</span>
-            </div>
+            <div class="text-slate-900 dark:text-white text-base">{{ creador.updatedAt | fechaCDMX }}</div>
           </td>
 
           <td class="px-6 py-4 text-right space-x-3">
             <p-button icon="pi pi-pencil" pTooltip="Editar" tooltipPosition="top"
-                      [routerLink]="['/admin/items/editar', item.id]"
+                      [routerLink]="['/admin/catalogos/formatos/editar', creador.id]"
                       styleClass="w-9 h-9 p-0 inline-flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-transparent hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white transition-all shadow-sm hover:shadow-blue-500/30">
             </p-button>
 
             <p-button icon="pi pi-trash" pTooltip="Eliminar" tooltipPosition="top"
-                      (onClick)="eliminar(item.id, item.title)"
+                      (onClick)="eliminar(creador.id, creador.nombre)"
                       styleClass="w-9 h-9 p-0 inline-flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-transparent hover:bg-red-600 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all shadow-sm hover:shadow-red-500/30">
             </p-button>
           </td>
@@ -100,11 +79,13 @@
                 <i class="pi pi-folder-open text-3xl text-slate-400 dark:text-slate-500"></i>
               </div>
               <h3 class="text-lg font-bold text-slate-900 dark:text-white">El catálogo está vacío</h3>
-              <p class="text-slate-500 dark:text-slate-400 mt-1 max-w-sm">No se encontraron registros en la base de datos. Comienza agregando tu primer ítem multimedia.</p>
+              <p class="text-slate-500 dark:text-slate-400 mt-1 max-w-sm">No se encontraron registros en la base de datos.</p>
             </div>
           </td>
         </tr>
       </ng-template>
     </p-table>
   </div>
+
+
 </div>

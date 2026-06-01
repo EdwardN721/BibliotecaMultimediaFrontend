@@ -1,20 +1,19 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
-import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
-import { CreadorDto } from '@core/models/creadores.model';
-import { FiltroGlobal } from '@core/models/filtoPaginado.model';
-import { ConfirmationService, MessageService } from  'primeng/api';
-import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
-
 import { CommonModule } from '@angular/common';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
+import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { FormatosService } from '@core/services/catalogos/formatos/formatos.service';
+import { FormatosDto } from '@core/models/formatos.model';
+import { FiltroGlobal } from '@core/models/filtoPaginado.model';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
-  selector: 'app-creadores-list.component',
-  standalone: true,
+  selector: 'app-formato-lista.component',
   imports: [
     CommonModule,
     ConfirmDialogModule,
@@ -22,25 +21,26 @@ import { RouterModule } from '@angular/router';
     ButtonModule,
     TableModule,
     RouterModule,
-    FechaCdmxPipe
+    FechaCdmxPipe,
+    Tooltip,
   ],
-  templateUrl: './creadores-list.component.html',
-  styleUrl: './creadores-list.component.css',
+  templateUrl: './formato-lista.component.html',
+  styleUrl: './formato-lista.component.css',
 })
-export class CreadoresListComponent implements OnInit {
-  private creadorService: CreadoresService = inject(CreadoresService);
+export class FormatoListaComponent implements OnInit {
+  private formatoService: FormatosService = inject(FormatosService);
   private confirmationService: ConfirmationService = inject(ConfirmationService);
   private messageService: MessageService = inject(MessageService);
 
-  creadores: WritableSignal<CreadorDto[]> = signal<CreadorDto[]>([]);
+  formatos: WritableSignal<FormatosDto[]> = signal<FormatosDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
   errorMessage: WritableSignal<string | null> = signal<string | null>(null);
 
   ngOnInit() {
-    this.cargarCreadores();
+    this.cargarFormatos();
   }
 
-  cargarCreadores() {
+  cargarFormatos() {
     this.isLoading.set(true);
 
     const miFiltro: FiltroGlobal = {
@@ -49,14 +49,19 @@ export class CreadoresListComponent implements OnInit {
       ordenDescendente: true,
     };
 
-    this.creadorService.obtenerCreadores(miFiltro, 1, 10).subscribe({
+    this.formatoService.obtenerFormatos(miFiltro, 1, 10).subscribe({
       next: (response) => {
-        this.creadores.set(response);
+        this.formatos.set(response);
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Error al cargar a los creadores:', err);
-        this.errorMessage.set('No se pudo recuperar el cátalogo de creadores');
+        console.error('Error al cargar los formatos:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al obtener',
+          detail: 'Ocurrio un error al cargar la información',
+        });
+        this.errorMessage.set('No se pudo recuperar el cátalogo de formatos');
         this.isLoading.set(false);
       },
     });
@@ -64,11 +69,11 @@ export class CreadoresListComponent implements OnInit {
 
   eliminar(id: string, nombre: string) {
     this.confirmationService.confirm({
-      message: `¿Desea eliminar${nombre} permanentemente?`,
+      message: `¿Desea eliminar ${nombre} permanentemente?`,
       header: 'Confirmacion',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.creadorService.eliminarCreador(id).subscribe({
+        this.formatoService.eliminarFormato(id).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',
@@ -79,7 +84,7 @@ export class CreadoresListComponent implements OnInit {
           error: (err) => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Error al elimnar',
+              summary: 'Error al eliminar',
               detail: 'No se pudo eliminar',
             });
             console.error('Error al eliminar:', err);

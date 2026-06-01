@@ -1,22 +1,21 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
-import { AgregarCreadorDto } from '@core/models/creadores.model';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api'
+import { MessageService } from 'primeng/api';
+import { PlataformasService } from '@core/services/catalogos/plataformas/plataformas.service';
 
 @Component({
-  selector: 'app-creadores-nuevo.component',
+  selector: 'app-plataforma-nuevo.component',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -30,41 +29,40 @@ import { MessageService } from 'primeng/api'
     InputIconModule,
     ToastModule,
   ],
-  templateUrl: './creadores-nuevo.component.html',
-  styleUrl: './creadores-nuevo.component.css',
+  templateUrl: './plataforma-nuevo.component.html',
+  styleUrl: './plataforma-nuevo.component.css',
 })
-export class CreadoresNuevoComponent {
+export class PlataformaNuevoComponent {
   private fb: FormBuilder = inject(FormBuilder);
-  private creadorService: CreadoresService = inject(CreadoresService);
+  private plataformaService: PlataformasService = inject(PlataformasService);
   private router: Router = inject(Router);
-  private messageService = inject(MessageService);
+  private messageService: MessageService = inject(MessageService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
 
-  creadorForm: FormGroup = this.fb.group({
-    nombre: ['', [Validators.required, Validators.maxLength(255)]],
-    biografia: ['', [Validators.maxLength(1500)]],
+  plataformaForm: FormGroup = this.fb.group({
+    nombre: ['', [Validators.required, Validators.maxLength(50)]],
   });
 
   guardar() {
-    if (this.creadorForm.invalid) {
-      this.creadorForm.markAllAsTouched();
+    if (this.plataformaForm.invalid) {
+      this.plataformaForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
 
-    const payload: AgregarCreadorDto = this.creadorForm.getRawValue();
+    const payload = this.plataformaForm.getRawValue();
 
-    this.creadorService.agregarCreador(payload).subscribe({
+    this.plataformaService.agregarPlataforma(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.messageService.add({
           severity: 'success',
           summary: 'Registro exitoso',
-          detail: `El creador "${payload.nombre}" se agregó al catálogo.`,
+          detail: `La plataforma "${payload.nombre}" se agregó al catálogo.`,
         });
-        this.router.navigate(['/admin/catalogos/creadores']);
+        this.router.navigate(['/admin/catalogos/plataformas']);
       },
       error: (err) => {
         console.error('Error: ', err);
@@ -74,7 +72,7 @@ export class CreadoresNuevoComponent {
           detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
         });
         this.isSubmitting.set(false);
-      },
-    });
+      }
+    })
   }
 }

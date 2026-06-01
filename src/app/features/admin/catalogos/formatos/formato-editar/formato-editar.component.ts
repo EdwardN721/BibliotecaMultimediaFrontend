@@ -9,14 +9,13 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { ActualizarCreadorDto } from '@core/models/creadores.model';
+import { FormatosService } from '@core/services/catalogos/formatos/formatos.service';
+import { ActualizarFormatoDto } from '@core/models/formatos.model';
 
 @Component({
-  selector: 'app-creadores-editar.component',
-  standalone: true,
+  selector: 'app-formato-editar.component',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -30,33 +29,31 @@ import { ActualizarCreadorDto } from '@core/models/creadores.model';
     InputIconModule,
     ToastModule,
   ],
-  templateUrl: './creadores-editar.component.html',
-  styleUrl: './creadores-editar.component.css',
+  templateUrl: './formato-editar.component.html',
+  styleUrl: './formato-editar.component.css',
 })
-export class CreadoresEditarComponent implements OnInit {
+export class FormatoEditarComponent implements OnInit{
   private fb: FormBuilder = inject(FormBuilder);
-  private creadoresServices: CreadoresService = inject(CreadoresService);
+  private formatoService: FormatosService = inject(FormatosService);
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
   private messageService = inject(MessageService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
   isLoadingData: WritableSignal<boolean> = signal<boolean>(true);
-  creadorId: string = '';
+  formatoId: string = '';
 
-  creadorForm: FormGroup = this.fb.group({
-    nombre: ['', [Validators.required, Validators.maxLength(255)]],
-    biografia: ['', [Validators.maxLength(1500)]],
+  formatoForm: FormGroup = this.fb.group({
+    nombre: ['', [Validators.required, Validators.maxLength(50)]],
   });
 
   ngOnInit() {
-    this.creadorId = this.route.snapshot.paramMap.get('id')!;
+    this.formatoId = this.route.snapshot.paramMap.get('id')!;
 
-    this.creadoresServices.obtenerCreadorPorId(this.creadorId).subscribe({
+    this.formatoService.obtenerFormatoPorId(this.formatoId).subscribe({
       next: (creador) => {
-        this.creadorForm.patchValue({
+        this.formatoForm.patchValue({
           nombre: creador.nombre,
-          biografia: creador.biografia,
         });
         this.isLoadingData.set(false);
       },
@@ -67,23 +64,22 @@ export class CreadoresEditarComponent implements OnInit {
           summary: 'Error',
           detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
         });
-        this.router.navigate(['/admin/catalogos']);
+        this.router.navigate(['/admin/catalogos/formatos']);
       },
     });
   }
 
   actualizar(){
-    if (this.creadorForm.invalid) return;
+    if (this.formatoForm.invalid) return;
 
     this.isSubmitting.set(true);
-    const formValues = this.creadorForm.getRawValue();
+    const formValues = this.formatoForm.getRawValue();
 
-    const payload: ActualizarCreadorDto = {
+    const payload: ActualizarFormatoDto = {
       nombre: formValues.nombre,
-      biografia: formValues.biografia
     };
 
-    this.creadoresServices.actualizarCreador(this.creadorId, payload).subscribe({
+    this.formatoService.actualizarFormato(this.formatoId, payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.messageService.add({
@@ -91,7 +87,7 @@ export class CreadoresEditarComponent implements OnInit {
           summary: 'Cambios guardados',
           detail: `La información de "${payload.nombre}" ha sido actualizada.`
         });
-        this.router.navigate(['/admin/items']);
+        this.router.navigate(['/admin/catalogos/formatos']);
       },
       error: (err) => {
         console.error('Error al actualizar el registro:', err);

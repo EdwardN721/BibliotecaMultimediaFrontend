@@ -31,6 +31,11 @@ export const routes: Routes = [
         path: 'catalogos',
         loadChildren: () => import('@features/admin/catalogos/plataformas/routes/plataformas.routes')
           .then((m) => m.PLATAFORMAS_ROUTES)
+      },
+      {
+        path: 'catalogos',
+        loadChildren: () => import('@features/admin/catalogos/formatos/routes/formatos.rotes')
+          .then((m) => m.FORMATOS_ROUTES)
       }
     ],
   },

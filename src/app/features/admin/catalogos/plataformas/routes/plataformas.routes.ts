@@ -7,17 +7,17 @@ export const PLATAFORMAS_ROUTES = [
       ),
   },
   {
-    path: 'creadores/nuevo',
+    path: 'plataformas/nuevo',
     loadComponent: () =>
-      import('@features/admin/catalogos/creadores/creadores-nuevo/creadores-nuevo.component').then(
-        (m) => m.CreadoresNuevoComponent,
+      import('@features/admin/catalogos/plataformas/plataforma-nuevo/plataforma-nuevo.component').then(
+        (m) => m.PlataformaNuevoComponent,
       ),
   },
   {
-    path: 'creadores/editar/:id', // Todavia no creado
+    path: 'plataformas/editar/:id',
     loadComponent: () =>
-      import('@features/admin/catalogos/creadores/creadores-editar/creadores-editar.component').then(
-        (m) => m.CreadoresEditarComponent,
+      import('@features/admin/catalogos/plataformas/plataforma-editar/plataforma-editar.component').then(
+        (m) => m.PlataformaEditarComponent,
       ),
   },
 ];
