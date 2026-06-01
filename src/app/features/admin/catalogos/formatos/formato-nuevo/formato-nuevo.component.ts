@@ -10,12 +10,13 @@ import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { AgregarFormatoDto } from '@core/models/formatos.model';
 import { FormatosService } from '@core/services/catalogos/formatos/formatos.service';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-formato-nuevo.component',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -36,7 +37,7 @@ export class FormatoNuevoComponent {
   private fb: FormBuilder = inject(FormBuilder);
   private formatoService: FormatosService = inject(FormatosService);
   private router: Router = inject(Router);
-  private messageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
 
@@ -57,20 +58,18 @@ export class FormatoNuevoComponent {
     this.formatoService.agregarFormato(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Registro exitoso',
-          detail: `El formato "${payload.nombre}" se agregó al catálogo.`,
-        });
+        this.notificacion.exito(
+          'Registro exitoso',
+          `El formato "${payload.nombre}" se agregó al catálogo.`,
+        );
         this.router.navigate(['/admin/catalogos/formatos']);
       },
       error: (err) => {
         console.error('Error: ', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al registrar',
-          detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
-        });
+        this.notificacion.error(
+          'Error al registrar',
+          'Ocurrió un error de comunicación con el servidor.',
+        );
         this.isSubmitting.set(false);
       },
     });

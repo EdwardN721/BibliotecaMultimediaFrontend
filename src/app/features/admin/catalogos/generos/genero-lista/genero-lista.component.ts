@@ -27,7 +27,7 @@ import { GeneroDto } from '@core/models/generos.model';
   templateUrl: './genero-lista.component.html',
   styleUrl: './genero-lista.component.css',
 })
-export class GeneroListaComponent implements OnInit{
+export class GeneroListaComponent implements OnInit {
   private generoService: GenerosService = inject(GenerosService);
   private confirmationService: ConfirmationService = inject(ConfirmationService);
   private messageService: MessageService = inject(MessageService);
@@ -52,6 +52,11 @@ export class GeneroListaComponent implements OnInit{
     this.generoService.obtenerGeneros(miFiltro, 1, 10).subscribe({
       next: (response) => {
         this.generos.set(response);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Éxito',
+          detail: `Éxito al cargar los generos.`,
+        });
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -69,23 +74,32 @@ export class GeneroListaComponent implements OnInit{
 
   eliminar(id: string, nombre: string) {
     this.confirmationService.confirm({
-      message: `¿Desea eliminar ${nombre} permanentemente?`,
-      header: 'Confirmacion',
-      icon: 'pi pi-exclamation-triangle',
+      message: `¿Estás seguro de que deseas eliminar a "${nombre}"? Esta acción no se puede deshacer.`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle text-red-500 text-2xl mr-2',
+      acceptLabel: 'Sí, Eliminar',
+      rejectLabel: 'Cancelar',
+      rejectButtonStyleClass:
+        'p-button-text px-4 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-bold transition-all',
+      acceptButtonStyleClass:
+        'px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white border-none rounded-xl shadow-lg shadow-red-600/30 hover:-translate-y-0.5 transition-all font-bold ml-3',
+
       accept: () => {
         this.generoService.eliminarGenero(id).subscribe({
           next: () => {
+            this.generos.update((lista) => lista.filter((c) => c.id !== id));
+
             this.messageService.add({
               severity: 'success',
               summary: 'Eliminado',
-              detail: `"${nombre}" fue eliminado`,
+              detail: `"${nombre}" fue eliminado exitosamente`,
             });
           },
           error: (err) => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Error al eliminar',
-              detail: 'No se pudo eliminar',
+              summary: 'Operación denegada',
+              detail: 'No se pudo eliminar el genero. Verifica tu conexión.',
             });
             console.error('Error al eliminar:', err);
           },

@@ -13,7 +13,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
 import { AgregarCreadorDto } from '@core/models/creadores.model';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api'
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-creadores-nuevo.component',
@@ -37,7 +37,7 @@ export class CreadoresNuevoComponent {
   private fb: FormBuilder = inject(FormBuilder);
   private creadorService: CreadoresService = inject(CreadoresService);
   private router: Router = inject(Router);
-  private messageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
 
@@ -59,20 +59,15 @@ export class CreadoresNuevoComponent {
     this.creadorService.agregarCreador(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Registro exitoso',
-          detail: `El creador "${payload.nombre}" se agregó al catálogo.`,
-        });
+        this.notificacion.exito('Registro exitoso', `El creador "${payload.nombre}" se agregó al catálogo.`)
         this.router.navigate(['/admin/catalogos/creadores']);
       },
       error: (err) => {
         console.error('Error: ', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al registrar',
-          detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
-        });
+        this.notificacion.error(
+          'Error al registrar',
+          'Ocurrió un error de comunicación con el servidor.',
+        );
         this.isSubmitting.set(false);
       },
     });

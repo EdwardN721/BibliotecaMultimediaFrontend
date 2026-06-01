@@ -1,15 +1,16 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
-import { AuthService } from '../../../core/services/auth/auth';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthService } from '@core/services/auth/auth';
+import { Router, RouterLink, RouterLinkActive, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from '@core/services/theme/theme.service';
-import { ConfirmDialog } from 'primeng/confirmdialog';
-import { Toast } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ConfirmDialog, Toast],
+  imports: [CommonModule, RouterModule, RouterOutlet, RouterLink, RouterLinkActive, ConfirmDialogModule, ToastModule],
   templateUrl: './layout.html',
   styleUrl: './layout.css',
 })

@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-plataformas.componetn',
@@ -27,6 +28,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ToastModule,
     FechaCdmxPipe,
     ConfirmDialogModule,
+    Tooltip,
   ],
   templateUrl: './plataformas.component.html',
   styleUrl: './plataformas.component.css',
@@ -36,7 +38,7 @@ export class PlataformasComponent implements OnInit {
   private confirmationService: ConfirmationService = inject(ConfirmationService);
   private messageService: MessageService = inject(MessageService);
 
-  items: WritableSignal<PlataformaDto[]> = signal<PlataformaDto[]>([]);
+  plataformas: WritableSignal<PlataformaDto[]> = signal<PlataformaDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
   errorMessage: WritableSignal<string | null> = signal<string | null>(null);
 
@@ -55,7 +57,7 @@ export class PlataformasComponent implements OnInit {
 
     this.plataformaService.obtenerPlataformas(miFiltro, 1, 10).subscribe({
       next: (response) => {
-        this.items.set(response);
+        this.plataformas.set(response);
         this.messageService.add({
           severity: 'success',
           summary: 'Éxito',
@@ -78,23 +80,32 @@ export class PlataformasComponent implements OnInit {
 
   eliminar(id: string, nombre: string) {
     this.confirmationService.confirm({
-      message: `¿Desea eliminar ${nombre} permanentemente?`,
-      header: 'Confirmacion',
-      icon: 'pi pi-exclamation-triangle',
+      message: `¿Estás seguro de que deseas eliminar a "${nombre}"? Esta acción no se puede deshacer.`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle text-red-500 text-2xl mr-2',
+      acceptLabel: 'Sí, Eliminar',
+      rejectLabel: 'Cancelar',
+      rejectButtonStyleClass:
+        'p-button-text px-4 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-bold transition-all',
+      acceptButtonStyleClass:
+        'px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white border-none rounded-xl shadow-lg shadow-red-600/30 hover:-translate-y-0.5 transition-all font-bold ml-3',
+
       accept: () => {
         this.plataformaService.eliminarPlataforma(id).subscribe({
           next: () => {
+            this.plataformas.update((lista) => lista.filter((c) => c.id !== id));
+
             this.messageService.add({
               severity: 'success',
               summary: 'Eliminado',
-              detail: `"${nombre}" fue eliminado`,
+              detail: `"${nombre}" fue eliminado exitosamente`,
             });
           },
           error: (err) => {
             this.messageService.add({
               severity: 'error',
-              summary: 'Error',
-              detail: 'No se pudo eliminar',
+              summary: 'Operación denegada',
+              detail: 'No se pudo eliminar la plataforma. Verifica tu conexión.',
             });
             console.error('Error al eliminar:', err);
           },

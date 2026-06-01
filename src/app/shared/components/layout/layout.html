@@ -160,5 +160,10 @@
 
   </div>
 </div>
-<p-confirmDialog></p-confirmDialog>
-<p-toast></p-toast>
+<p-toast position="top-right" class="mb-6 mr-6"></p-toast>
+
+<p-confirmDialog
+  [style]="{ width: '28rem', padding: '1.2rem'}"
+  [breakpoints]="{ '640px': '90vw' }"
+  maskStyleClass="backdrop-blur-sm bg-slate-900/60 dark:bg-black/60 transition-all duration-300">
+</p-confirmDialog>

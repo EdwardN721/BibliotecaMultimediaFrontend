@@ -11,8 +11,8 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { ActualizarCreadorDto } from '@core/models/creadores.model';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-creadores-editar.component',
@@ -38,7 +38,7 @@ export class CreadoresEditarComponent implements OnInit {
   private creadoresServices: CreadoresService = inject(CreadoresService);
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
-  private messageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService)
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
   isLoadingData: WritableSignal<boolean> = signal<boolean>(true);
@@ -58,15 +58,15 @@ export class CreadoresEditarComponent implements OnInit {
           nombre: creador.nombre,
           biografia: creador.biografia,
         });
+        this.notificacion.exito('Cargo con éxito', 'Creador obtenido con éxito')
         this.isLoadingData.set(false);
       },
       error: (err) => {
         console.error('Error:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
-        });
+        this.notificacion.error(
+          'Error',
+          'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
+        );
         this.router.navigate(['/admin/catalogos']);
       },
     });
@@ -86,20 +86,18 @@ export class CreadoresEditarComponent implements OnInit {
     this.creadoresServices.actualizarCreador(this.creadorId, payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Cambios guardados',
-          detail: `La información de "${payload.nombre}" ha sido actualizada.`
-        });
+        this.notificacion.info(
+          'Cambios guardados',
+          `La información de "${payload.nombre}" ha sido actualizada.`,
+        );
         this.router.navigate(['/admin/items']);
       },
       error: (err) => {
         console.error('Error al actualizar el registro:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al actualizar',
-          detail: 'Los cambios no se pudieron guardar. Verifica tu conexión.'
-        });
+        this.notificacion.error(
+          'Error al actualizar',
+          'Los cambios no se pudieron guardar.',
+        );
         this.isSubmitting.set(false);
       }
     });
