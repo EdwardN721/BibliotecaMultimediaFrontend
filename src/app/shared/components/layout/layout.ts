@@ -17,6 +17,7 @@ export class LayoutComponent {
   public themeService: ThemeService = inject(ThemeService);
 
   isMobileMenuOpen: WritableSignal<boolean> = signal<boolean>(false);
+  isCatalogosOpen: WritableSignal<boolean> = signal<boolean>(false);
 
   currentRoleLabel(): string {
     if (this.authService.isAdmin()) return 'Administrador';
@@ -35,5 +36,9 @@ export class LayoutComponent {
 
   closeMobileMenu() {
     this.isMobileMenuOpen.set(false);
+  }
+
+  toggleCatalogos(){
+    this.isCatalogosOpen.update(val => !val);
   }
 }

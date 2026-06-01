@@ -3,8 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
 import { ActualizarItemDto, CrearItemDto, ItemDto } from '@core/models/item.model';
-import { FiltroItem } from '@core/models/filtoPaginado.model'
-import { RespuestaPaginada } from '@core/models/paginacion.model'
+import { FiltroGlobal } from '@core/models/filtoPaginado.model'
 
 @Injectable({
   providedIn: 'root',
@@ -14,7 +13,7 @@ export class ItemService {
   private readonly apiUrl: string = `${environment.apiUrl}/api/v1/Item`
 
   obtenerItems(
-    filtoPaginado: FiltroItem,
+    filtoPaginado: FiltroGlobal,
     pageNumber: number = 1, 
     pageSize: number = 10
   ): Observable<ItemDto[]>{
@@ -40,7 +39,7 @@ export class ItemService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  private obtenerfiltro(filtro: FiltroItem, pageNumber: number, pageSize: number) : HttpParams {
+  private obtenerfiltro(filtro: FiltroGlobal, pageNumber: number, pageSize: number) : HttpParams {
     let params: HttpParams = new HttpParams()
       .set('pageNumber', pageNumber)
       .set('pageSize', pageSize);

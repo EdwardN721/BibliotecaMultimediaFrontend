@@ -1,19 +1,21 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
-import { ItemService } from '@core/services/items/item.service';
-import { ItemDto } from '@core/models/item.model';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { PlataformasService } from '@core/services/catalogos/plataformas/plataformas.service';
+import { PlataformaDto } from '@core/models/plataformas.model';
+import { FiltroGlobal } from '@core/models/filtoPaginado.model';
+import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
-  selector: 'app-items.component',
+  selector: 'app-plataformas.componetn',
   imports: [
     CommonModule,
     RouterModule,
@@ -22,25 +24,27 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     IconFieldModule,
     InputIconModule,
     InputTextModule,
+    ToastModule,
+    FechaCdmxPipe,
     ConfirmDialogModule,
   ],
-  templateUrl: './items.component.html',
-  styleUrl: './items.component.css',
+  templateUrl: './plataformas.component.html',
+  styleUrl: './plataformas.component.css',
 })
-export class ItemsComponent implements OnInit {
-  private itemService: ItemService = inject(ItemService);
+export class PlataformasComponent implements OnInit {
+  private plataformaService: PlataformasService = inject(PlataformasService);
   private confirmationService: ConfirmationService = inject(ConfirmationService);
   private messageService: MessageService = inject(MessageService);
 
-  items: WritableSignal<ItemDto[]> = signal<ItemDto[]>([]);
+  items: WritableSignal<PlataformaDto[]> = signal<PlataformaDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
   errorMessage: WritableSignal<string | null> = signal<string | null>(null);
 
   ngOnInit() {
-    this.cargarCatalogo();
+    this.cargarPlataformas();
   }
 
-  cargarCatalogo() {
+  cargarPlataformas() {
     this.isLoading.set(true);
 
     const miFiltro: FiltroGlobal = {
@@ -49,13 +53,23 @@ export class ItemsComponent implements OnInit {
       ordenDescendente: true,
     };
 
-    this.itemService.obtenerItems(miFiltro, 1, 10).subscribe({
+    this.plataformaService.obtenerItems(miFiltro, 1, 10).subscribe({
       next: (response) => {
         this.items.set(response);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Plataformas',
+          detail: `Plataformas cargadas con éxito.`,
+        });
         this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error al cargar el catálogo:', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'No se pudo cargar las plataformas',
+          detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
+        });
         this.errorMessage.set('No se pudo recuperar el catálogo de ítems.');
         this.isLoading.set(false);
       },
@@ -68,7 +82,7 @@ export class ItemsComponent implements OnInit {
       header: 'Confirmacion',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.itemService.eliminarItem(id).subscribe({
+        this.plataformaService.eliminarPlataforma(id).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',

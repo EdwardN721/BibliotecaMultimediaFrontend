@@ -1,17 +1,17 @@
 <div class="min-h-screen flex bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
-  
+
   @if (isMobileMenuOpen()) {
-    <div class="fixed inset-0 bg-slate-900/60 dark:bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity" 
+    <div class="fixed inset-0 bg-slate-900/60 dark:bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity"
          (click)="closeMobileMenu()">
     </div>
   }
 
-  <aside 
+  <aside
     class="fixed inset-y-0 left-0 z-50 w-72 md:w-64 flex flex-col justify-between p-4 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
            bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-r border-slate-200/50 dark:border-slate-800/50 shadow-2xl md:shadow-none"
     [ngClass]="isMobileMenuOpen() ? 'translate-x-0' : '-translate-x-full'">
-    
-    <div>
+
+    <div class="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
       <div class="flex items-center justify-between px-2 py-4 mb-6">
         <span class="text-2xl font-black tracking-wider text-slate-900 dark:text-white">
           STREAM<span class="text-blue-500">BOX</span>
@@ -21,51 +21,95 @@
         </button>
       </div>
 
-      <nav class="space-y-1.5">
-        
+      <nav class="space-y-1.5 pb-4">
+
         @if (authService.isAdmin()) {
           <div class="px-3 mb-2 mt-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-            Gestión de Biblioteca
+            Gestión Principal
           </div>
-          
+
           <a routerLink="/admin" routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-500 font-semibold shadow-sm" [routerLinkActiveOptions]="{exact: true}"
             (click)="closeMobileMenu()"
             class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all border-l-4 border-transparent">
-            <i class="pi pi-home text-lg"></i>
+            <i class="pi pi-home text-lg w-5 text-center"></i>
             <span>Panel de Control</span>
           </a>
-          
-          <a routerLink="/admin/catalogos" routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-500 font-semibold shadow-sm"
-            (click)="closeMobileMenu()"
-            class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all border-l-4 border-transparent">
-            <i class="pi pi-tags text-lg"></i>
-            <span>Géneros</span>
-          </a>
-          
+
           <a routerLink="/admin/items" routerLinkActive="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-l-4 border-blue-500 font-semibold shadow-sm"
             (click)="closeMobileMenu()"
             class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all border-l-4 border-transparent">
-            <i class="pi pi-database text-lg"></i>
-            <span>Artículos Multimedia</span>
+            <i class="pi pi-database text-lg w-5 text-center"></i>
+            <span>Catalogos lista</span>
           </a>
-        }
+
+          <div class="px-3 mb-2 mt-6 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            Configuración
+          </div>
+
+          <div class="space-y-1">
+            <button (click)="toggleCatalogos()"
+                    class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all border-l-4 border-transparent">
+              <div class="flex items-center space-x-3">
+                <i class="pi pi-tags text-lg w-5 text-center"></i>
+                <span>Catálogos</span>
+              </div>
+              <i class="pi text-xs transition-transform duration-300" [ngClass]="isCatalogosOpen() ? 'pi-chevron-down' : 'pi-chevron-right'"></i>
+            </button>
+
+            @if (isCatalogosOpen()) {
+              <div class="pl-11 pr-3 py-1 space-y-1 animate-fadein">
+
+                <a routerLink="/admin/items/generos" routerLinkActive="text-blue-600 dark:text-blue-400 font-bold bg-slate-100 dark:bg-slate-800/60"
+                  (click)="closeMobileMenu()"
+                  class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-all">
+                  Géneros
+                </a>
+
+                <a routerLink="/admin/catalogos/creadores" routerLinkActive="text-blue-600 dark:text-blue-400 font-bold bg-slate-100 dark:bg-slate-800/60"
+                  (click)="closeMobileMenu()"
+                  class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-all">
+                  Creadores
+                </a>
+
+                <a routerLink="/admin/formatos" routerLinkActive="text-blue-600 dark:text-blue-400 font-bold bg-slate-100 dark:bg-slate-800/60"
+                  (click)="closeMobileMenu()"
+                  class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-all">
+                  Formatos
+                </a>
+
+                <a routerLink="/admin/items/tipos-medio" routerLinkActive="text-blue-600 dark:text-blue-400 font-bold bg-slate-100 dark:bg-slate-800/60"
+                  (click)="closeMobileMenu()"
+                  class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-all">
+                  Tipos de Medio
+                </a>
+
+                <a routerLink="/admin/catalogos/plataformas" routerLinkActive="text-blue-600 dark:text-blue-400 font-bold bg-slate-100 dark:bg-slate-800/60"
+                  (click)="closeMobileMenu()"
+                  class="block px-3 py-2 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/50 dark:hover:bg-slate-800/30 transition-all">
+                  Plataformas
+                </a>
+
+              </div>
+            }
+          </div>
+          }
 
         @if (authService.isRegularUser()) {
           <div class="px-3 mb-2 mt-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
             Mi Espacio Personal
           </div>
-          
+
           <a routerLink="/user" routerLinkActive="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-l-4 border-emerald-500 font-semibold shadow-sm" [routerLinkActiveOptions]="{exact: true}"
             (click)="closeMobileMenu()"
             class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all border-l-4 border-transparent">
-            <i class="pi pi-box text-lg"></i>
+            <i class="pi pi-box text-lg w-5 text-center"></i>
             <span>Mi Inventario</span>
           </a>
-          
+
           <a routerLink="/user/explorar" routerLinkActive="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-l-4 border-emerald-500 font-semibold shadow-sm"
             (click)="closeMobileMenu()"
             class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200 transition-all border-l-4 border-transparent">
-            <i class="pi pi-compass text-lg"></i>
+            <i class="pi pi-compass text-lg w-5 text-center"></i>
             <span>Explorar Ítems</span>
           </a>
         }
@@ -73,30 +117,32 @@
       </nav>
     </div>
 
-    <div class="bg-slate-100/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800/50 rounded-xl p-3 flex items-center justify-between">
-      <div class="truncate">
-        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Conectado como:</p>
-        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{{ currentRoleLabel() }}</p>
+    <div class="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
+      <div class="bg-slate-100/50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800/50 rounded-xl p-3 flex items-center justify-between">
+        <div class="truncate">
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Conectado como:</p>
+          <p class="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">{{ currentRoleLabel() }}</p>
+        </div>
       </div>
     </div>
   </aside>
 
   <div class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-    
+
     <header class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-800/50 h-16 flex items-center justify-between px-4 sm:px-6 shadow-sm z-30 transition-colors duration-300 sticky top-0">
-      
+
       <div class="flex items-center space-x-3">
         <button class="md:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors" (click)="toggleMobileMenu()">
           <i class="pi pi-bars text-xl"></i>
         </button>
         <span class="text-sm text-slate-500 dark:text-slate-400 font-semibold hidden sm:block">Consola de Control Multimedia</span>
       </div>
-      
+
       <div class="flex items-center space-x-2 sm:space-x-4">
-        
-        <button (click)="themeService.toggleTheme()" 
+
+        <button (click)="themeService.toggleTheme()"
           class="w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 border border-slate-200 hover:bg-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 transition-all text-slate-600 dark:text-slate-300 hover:scale-105 active:scale-95">
-          <i class="pi" [ngClass]="themeService.isDarkMode() ? 'pi-sun text-amber-400' : 'pi-moon text-indigo-500'"></i>   
+          <i class="pi" [ngClass]="themeService.isDarkMode() ? 'pi-sun text-amber-400' : 'pi-moon text-indigo-500'"></i>
         </button>
 
         <div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-2 hidden sm:block"></div>

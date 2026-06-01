@@ -1,46 +1,46 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
-import { ItemService } from '@core/services/items/item.service';
-import { ItemDto } from '@core/models/item.model';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
+import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
+import { CreadorDto } from '@core/models/creadores.model';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
+import { ConfirmationService, MessageService } from  'primeng/api';
+import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
+
+import { CommonModule } from '@angular/common';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-items.component',
+  selector: 'app-creadores-list.component',
+  standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
-    TableModule,
-    ButtonModule,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
     ConfirmDialogModule,
+    ToastModule,
+    ButtonModule,
+    TableModule,
+    RouterModule,
+    FechaCdmxPipe
   ],
-  templateUrl: './items.component.html',
-  styleUrl: './items.component.css',
+  templateUrl: './creadores-list.component.html',
+  styleUrl: './creadores-list.component.css',
 })
-export class ItemsComponent implements OnInit {
-  private itemService: ItemService = inject(ItemService);
+export class CreadoresListComponent implements OnInit {
+  private creadorService: CreadoresService = inject(CreadoresService);
   private confirmationService: ConfirmationService = inject(ConfirmationService);
   private messageService: MessageService = inject(MessageService);
 
-  items: WritableSignal<ItemDto[]> = signal<ItemDto[]>([]);
+  creadores: WritableSignal<CreadorDto[]> = signal<CreadorDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
   errorMessage: WritableSignal<string | null> = signal<string | null>(null);
 
   ngOnInit() {
-    this.cargarCatalogo();
+    this.cargarCreadores();
   }
 
-  cargarCatalogo() {
+  cargarCreadores() {
     this.isLoading.set(true);
 
     const miFiltro: FiltroGlobal = {
@@ -49,14 +49,14 @@ export class ItemsComponent implements OnInit {
       ordenDescendente: true,
     };
 
-    this.itemService.obtenerItems(miFiltro, 1, 10).subscribe({
+    this.creadorService.obtenerCreadores(miFiltro, 1, 10).subscribe({
       next: (response) => {
-        this.items.set(response);
+        this.creadores.set(response);
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Error al cargar el catálogo:', err);
-        this.errorMessage.set('No se pudo recuperar el catálogo de ítems.');
+        console.error('Error al cargar a los creadores:', err);
+        this.errorMessage.set('No se pudo recuperar el cátalogo de creadores');
         this.isLoading.set(false);
       },
     });
@@ -64,11 +64,11 @@ export class ItemsComponent implements OnInit {
 
   eliminar(id: string, nombre: string) {
     this.confirmationService.confirm({
-      message: `¿Desea eliminar ${nombre} permanentemente?`,
+      message: `¿Desea eliminar${nombre} permanentemente?`,
       header: 'Confirmacion',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.itemService.eliminarItem(id).subscribe({
+        this.creadorService.eliminarCreador(id).subscribe({
           next: () => {
             this.messageService.add({
               severity: 'success',

@@ -1,0 +1,96 @@
+<p-confirmDialog></p-confirmDialog>
+<p-toast></p-toast>
+<div class="max-w-7xl mx-auto space-y-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/60">
+    <div>
+      <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Catálogo Creadores</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Catalogo para administrar a los creadores de contenidos.</p>
+    </div>
+    <p-button label="Registrar Nuevo Creador" icon="pi pi-plus" routerLink="/admin/catalogos/creadores/nuevo" class="px-6 py-2.5 shadow-md shadow-blue-500/20"></p-button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="p-4 bg-red-50 dark:bg-red-900/10 border-l-4 border-red-500 text-red-700 dark:text-red-400 rounded-r-xl text-sm font-medium flex items-center gap-3">
+      <i class="pi pi-exclamation-triangle text-lg"></i>
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+    <p-table
+      [value]="creadores()"
+      [loading]="isLoading()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20]"
+      [rowHover]="true"
+      [scrollable]="true"
+      size="large"
+      class="w-full">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="nombre" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+          <th pSortableColumn="biografia" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Biografia <p-sortIcon field="biografia"></p-sortIcon></th>
+          <th pSortableColumn="createdAt" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Agregado <p-sortIcon field="createdAt"></p-sortIcon></th>
+          <th pSortableColumn="updatedAt" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-center px-6 py-4">Modificado <p-sortIcon field="updatedAt"></p-sortIcon></th>
+          <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-right px-6 py-4">Acciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-creador>
+        <tr class="border-b border-slate-100 dark:border-slate-800/60 transition-colors">
+
+          <td class="px-6 py-4">
+            <div class="flex items-center space-x-3">
+              <div>
+                <div class="font-bold text-slate-900 dark:text-white text-base">{{ creador.nombre }}</div>
+              </div>
+            </div>
+          </td>
+
+          <td class="px-6 py-4">
+            <div class="text-slate-900 dark:text-white text-base">{{ creador.biografia }}</div>
+          </td>
+
+          <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 text-sm">
+            {{ creador.createdAt | fechaCDMX }}
+          </td>
+
+          <td class="px-6 py-4 text-center">
+            <div class="text-slate-900 dark:text-white text-base">{{ creador.updatedAt | fechaCDMX }}</div>
+          </td>
+
+          <td class="px-6 py-4 text-right space-x-3">
+            <p-button icon="pi pi-pencil" pTooltip="Editar" tooltipPosition="top"
+                      [routerLink]="['/admin/catalogos/creadores/editar', creador.id]"
+                      styleClass="w-9 h-9 p-0 inline-flex items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-transparent hover:bg-blue-600 hover:text-white dark:hover:bg-blue-500 dark:hover:text-white transition-all shadow-sm hover:shadow-blue-500/30">
+            </p-button>
+
+            <p-button icon="pi pi-trash" pTooltip="Eliminar" tooltipPosition="top"
+                      (onClick)="eliminar(creador.id, creador.nombre)"
+                      styleClass="w-9 h-9 p-0 inline-flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-transparent hover:bg-red-600 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all shadow-sm hover:shadow-red-500/30">
+            </p-button>
+          </td>
+
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center py-16">
+            <div class="flex flex-col items-center justify-center">
+              <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                <i class="pi pi-folder-open text-3xl text-slate-400 dark:text-slate-500"></i>
+              </div>
+              <h3 class="text-lg font-bold text-slate-900 dark:text-white">El catálogo está vacío</h3>
+              <p class="text-slate-500 dark:text-slate-400 mt-1 max-w-sm">No se encontraron registros en la base de datos.</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+
+</div>

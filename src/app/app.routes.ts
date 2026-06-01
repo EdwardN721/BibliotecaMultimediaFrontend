@@ -19,18 +19,18 @@ export const routes: Routes = [
       },
       {
         path: 'items',
-        loadComponent: () =>
-          import('@features/admin/items/item-list/items.component').then((m) => m.ItemsComponent),
+        loadChildren: () => import('@features/admin/items/routes/items.routes')
+          .then((m) => m.ITEMS_ROUTES)
       },
       {
-        path: 'items/crear',
-        loadComponent: () =>
-          import('@features/admin/items/item-create/item-create.component').then((m) => m.ItemCreateComponent),
+        path: 'catalogos',
+        loadChildren: () => import('@features/admin/catalogos/creadores/routes/creadores.routes')
+          .then((m) => m.CREADORES_ROUTES)
       },
       {
-        path: 'items/editar/:id',
-        loadComponent: () =>
-          import('@features/admin/items/item-edit/item-edit.component').then((m) => m.ItemEditComponent),
+        path: 'catalogos',
+        loadChildren: () => import('@features/admin/catalogos/plataformas/routes/plataformas.routes')
+          .then((m) => m.PLATAFORMAS_ROUTES)
       }
     ],
   },
