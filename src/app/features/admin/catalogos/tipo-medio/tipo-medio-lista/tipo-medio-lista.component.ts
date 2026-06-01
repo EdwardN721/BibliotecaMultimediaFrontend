@@ -7,10 +7,11 @@ import { TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
 import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
 import { Tooltip } from 'primeng/tooltip';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { TipoMediosService } from '@core/services/catalogos/tipo-medios/tipo-medios.service';
 import { TipoMedioDto } from '@core/models/tipo.medios.model';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-tipo-medio-lista.component',
@@ -30,7 +31,7 @@ import { TipoMedioDto } from '@core/models/tipo.medios.model';
 export class TipoMedioListaComponent implements OnInit {
   private tipoMedioService: TipoMediosService = inject(TipoMediosService);
   private confirmationService: ConfirmationService = inject(ConfirmationService);
-  private messageService: MessageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   tipoMedios: WritableSignal<TipoMedioDto[]> = signal<TipoMedioDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
@@ -52,20 +53,12 @@ export class TipoMedioListaComponent implements OnInit {
     this.tipoMedioService.obtenerTipoMedios(miFiltro, 1, 10).subscribe({
       next: (response) => {
         this.tipoMedios.set(response);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: `Éxito al cargar los medios.`,
-        });
+        this.notificacion.exito('Éxito', `Éxito al cargar los medios.`);
         this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error al cargar los medios:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al obtener',
-          detail: 'Ocurrio un error al cargar la información',
-        });
+        this.notificacion.error('Error al obtener', 'Ocurrio un error al cargar la información');
         this.errorMessage.set('No se pudo recuperar el cátalogo de tipo medios');
         this.isLoading.set(false);
       },
@@ -88,19 +81,13 @@ export class TipoMedioListaComponent implements OnInit {
         this.tipoMedioService.eliminarTipoMedio(id).subscribe({
           next: () => {
             this.tipoMedios.update((lista) => lista.filter((c) => c.id !== id));
-
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Eliminado',
-              detail: `"${nombre}" fue eliminado exitosamente`,
-            });
+            this.notificacion.exito('Eliminado', `"${nombre}" fue eliminado exitosamente`);
           },
           error: (err) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Operación denegada',
-              detail: 'No se pudo eliminar el medio. Verifica tu conexión.',
-            });
+            this.notificacion.error(
+              'Operación denegada',
+              'No se pudo eliminar el medio.',
+            );
             console.error('Error al eliminar:', err);
           },
         });

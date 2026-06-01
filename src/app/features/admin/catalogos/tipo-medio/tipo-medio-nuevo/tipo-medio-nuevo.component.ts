@@ -10,9 +10,9 @@ import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TipoMediosService } from '@core/services/catalogos/tipo-medios/tipo-medios.service';
 import { AgregarTipoMedioDto } from '@core/models/tipo.medios.model';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-tipo-medio-nuevo.component',
@@ -37,7 +37,7 @@ export class TipoMedioNuevoComponent {
   private fb: FormBuilder = inject(FormBuilder);
   private tipoMedioService: TipoMediosService = inject(TipoMediosService);
   private router: Router = inject(Router);
-  private messageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
 
@@ -58,20 +58,18 @@ export class TipoMedioNuevoComponent {
     this.tipoMedioService.agregarTipoMedio(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Registro exitoso',
-          detail: `El medio "${payload.nombre}" se agregó al catálogo.`,
-        });
+        this.notificacion.exito(
+          'Registro exitoso',
+          `El medio "${payload.nombre}" se agregó al catálogo.`,
+        );
         this.router.navigate(['/admin/catalogos/tipo-medios']);
       },
       error: (err) => {
         console.error('Error: ', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al registrar',
-          detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
-        });
+        this.notificacion.error(
+          'Error al registrar',
+          'Ocurrió un error de comunicación con el servidor.',
+        );
         this.isSubmitting.set(false);
       },
     });

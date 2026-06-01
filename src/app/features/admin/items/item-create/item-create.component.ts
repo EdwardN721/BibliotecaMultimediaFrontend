@@ -11,11 +11,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-item-create.component',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, ButtonModule, 
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ButtonModule,
     InputTextModule, InputNumberModule, CheckboxModule, TextareaModule,
     IconFieldModule, InputIconModule],
   templateUrl: './item-create.component.html',
@@ -25,20 +26,21 @@ export class ItemCreateComponent {
   private fb: FormBuilder = inject(FormBuilder);
   private itemService: ItemService = inject(ItemService);
   private router: Router = inject(Router);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
-  
+
   itemForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(150)]],
-    releaseDate: ['', [Validators.required]], 
+    releaseDate: ['', [Validators.required]],
     rating: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
     isFavorite: [false],
     descripcion: [''],
-    Metadata: [{}], 
-    
-    mediaTypeId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'], 
-    formatId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],    
-    platformId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],  
+    Metadata: [{}],
+
+    mediaTypeId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
+    formatId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
+    platformId: ['3fa85f64-5717-4562-b3fc-2c963f66afa6'],
     genreIds: [[]],
     creatorIds: [[]]
   });
@@ -56,10 +58,12 @@ export class ItemCreateComponent {
     this.itemService.crearItem(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
+        this.notificacion.exito('Éxito al registrar', `El articulo ${payload.title} se ha agŕegado al catalogo.`)
         this.router.navigate(['/admin/items']);
       },
       error: (err) => {
         console.error('Error:', err);
+        this.notificacion.error('Error al registrar', 'Ocurrio un error inesperado.')
         this.isSubmitting.set(false);
       }
     })

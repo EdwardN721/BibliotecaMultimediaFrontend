@@ -10,10 +10,11 @@ import { PlataformasService } from '@core/services/catalogos/plataformas/platafo
 import { PlataformaDto } from '@core/models/plataformas.model';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { ToastModule } from 'primeng/toast';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Tooltip } from 'primeng/tooltip';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-plataformas.componetn',
@@ -36,7 +37,7 @@ import { Tooltip } from 'primeng/tooltip';
 export class PlataformasComponent implements OnInit {
   private plataformaService: PlataformasService = inject(PlataformasService);
   private confirmationService: ConfirmationService = inject(ConfirmationService);
-  private messageService: MessageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   plataformas: WritableSignal<PlataformaDto[]> = signal<PlataformaDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
@@ -58,20 +59,15 @@ export class PlataformasComponent implements OnInit {
     this.plataformaService.obtenerPlataformas(miFiltro, 1, 10).subscribe({
       next: (response) => {
         this.plataformas.set(response);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: `Éxito al cargar plataformas.`,
-        });
+        this.notificacion.exito('Éxito al obtener', `Éxito al cargar plataformas.`);
         this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error al cargar el catálogo:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'No se pudo cargar las plataformas',
-          detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
-        });
+        this.notificacion.error(
+          'No se pudo cargar las plataformas',
+          'Ocurrió un error de comunicación con el servidor.',
+        );
         this.errorMessage.set('No se pudo recuperar el catálogo de ítems.');
         this.isLoading.set(false);
       },
@@ -94,19 +90,13 @@ export class PlataformasComponent implements OnInit {
         this.plataformaService.eliminarPlataforma(id).subscribe({
           next: () => {
             this.plataformas.update((lista) => lista.filter((c) => c.id !== id));
-
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Eliminado',
-              detail: `"${nombre}" fue eliminado exitosamente`,
-            });
+            this.notificacion.exito('Eliminado', `"${nombre}" fue eliminado exitosamente`);
           },
           error: (err) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Operación denegada',
-              detail: 'No se pudo eliminar la plataforma. Verifica tu conexión.',
-            });
+            this.notificacion.error(
+              'Operación denegada',
+              'No se pudo eliminar la plataforma.',
+            );
             console.error('Error al eliminar:', err);
           },
         });

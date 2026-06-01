@@ -10,9 +10,9 @@ import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { GenerosService } from '@core/services/catalogos/generos/generos.service';
 import { AgregarGeneroDto } from '@core/models/generos.model';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-genero-nuevo.component',
@@ -36,7 +36,7 @@ export class GeneroNuevoComponent {
   private fb: FormBuilder = inject(FormBuilder);
   private generoService: GenerosService = inject(GenerosService);
   private router: Router = inject(Router);
-  private messageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
 
@@ -58,20 +58,18 @@ export class GeneroNuevoComponent {
     this.generoService.agregarGenero(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Registro exitoso',
-          detail: `El genero "${payload.name}" se agregó al catálogo.`,
-        });
+        this.notificacion.exito(
+          'Registro exitoso',
+          `El genero "${payload.name}" se agregó al catálogo.`,
+        );
         this.router.navigate(['/admin/catalogos/generos']);
       },
       error: (err) => {
         console.error('Error: ', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al registrar',
-          detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
-        });
+        this.notificacion.error(
+          'Error al registrar',
+          'Ocurrió un error de comunicación con el servidor.',
+        );
         this.isSubmitting.set(false);
       },
     });

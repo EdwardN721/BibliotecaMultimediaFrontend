@@ -11,20 +11,21 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-item-edit.component',
   standalone: true,
   imports: [
-    CommonModule, 
-    ReactiveFormsModule, 
-    RouterModule, 
-    ButtonModule, 
-    InputTextModule, 
-    InputNumberModule, 
+    CommonModule,
+    ReactiveFormsModule,
+    RouterModule,
+    ButtonModule,
+    InputTextModule,
+    InputNumberModule,
     CheckboxModule,
     TextareaModule,
-    IconFieldModule, 
+    IconFieldModule,
     InputIconModule
   ],
   templateUrl: './item-edit.component.html',
@@ -35,6 +36,7 @@ export class ItemEditComponent implements OnInit {
   private itemService: ItemService = inject(ItemService);
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
   isLoadingData: WritableSignal<boolean> = signal<boolean>(true);
@@ -47,10 +49,10 @@ export class ItemEditComponent implements OnInit {
     isFavorite: [false],
     descripcion: [''],
     Metadata: [{}],
-    mediaTypeId: [''], 
-    formatId: [''], 
-    platformId: [''], 
-    genreIds: [[]], 
+    mediaTypeId: [''],
+    formatId: [''],
+    platformId: [''],
+    genreIds: [[]],
     creatorIds: [[]]
   });
 
@@ -68,16 +70,18 @@ export class ItemEditComponent implements OnInit {
           isFavorite: item.isFavorite,
           descripcion: item.descripcion || '',
           Metadata: item.metadata || {},
-          mediaTypeId: '3fa85f64-5717-4562-b3fc-2c963f66afa6', 
+          mediaTypeId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           formatId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           platformId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
           genreIds: [],
           creatorIds: []
         });
+        this.notificacion.exito('Éxito al obtener', 'Éxito al obtener el artículo.')
         this.isLoadingData.set(false);
       },
       error: (err) => {
         console.error('Error:', err);
+        this.notificacion.error('Error al obtener.', 'Error al obtener el artículo.')
         this.router.navigate(['/admin/items']);
       },
     });
@@ -106,10 +110,12 @@ export class ItemEditComponent implements OnInit {
     this.itemService.actualizarItem(this.itemId, payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
+        this.notificacion.info('Cambibios guardados', 'Cambios guardados con éxito.')
         this.router.navigate(['/admin/items']);
       },
       error: (err) => {
         console.error('Error al actualizar el registro:', err);
+        this.notificacion.error('Error al actualizar', 'Ocurrio un error inesperado.')
         this.isSubmitting.set(false);
       }
     });

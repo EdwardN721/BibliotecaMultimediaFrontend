@@ -10,9 +10,9 @@ import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TipoMediosService } from '@core/services/catalogos/tipo-medios/tipo-medios.service';
 import { ActualizarTipoMedioDto } from '@core/models/tipo.medios.model';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-tipo-medio-editar.component',
@@ -38,7 +38,7 @@ export class TipoMedioEditarComponent implements OnInit {
   private tipoMedioService: TipoMediosService = inject(TipoMediosService);
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
-  private messageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
   isLoadingData: WritableSignal<boolean> = signal<boolean>(true);
@@ -56,15 +56,15 @@ export class TipoMedioEditarComponent implements OnInit {
         this.tipoMedioForm.patchValue({
           nombre: creador.nombre,
         });
+        this.notificacion.exito('Éxito al obtener', 'Éxito al obtener medios.')
         this.isLoadingData.set(false);
       },
       error: (err) => {
         console.error('Error:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Ocurrió un error de comunicación con el servidor. Inténtalo de nuevo.',
-        });
+        this.notificacion.error(
+          'Error al obtener',
+          'Ocurrió un error de comunicación con el servidor.',
+        );
         this.router.navigate(['/admin/catalogos/tipo-medios']);
       },
     });
@@ -83,20 +83,18 @@ export class TipoMedioEditarComponent implements OnInit {
     this.tipoMedioService.actualizarTipoMedio(this.tipoMedioId, payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.messageService.add({
-          severity: 'info',
-          summary: 'Cambios guardados',
-          detail: `La información de "${payload.nombre}" ha sido actualizada.`,
-        });
+        this.notificacion.info(
+          'Cambios guardados',
+          `La información de "${payload.nombre}" ha sido actualizada.`,
+        );
         this.router.navigate(['/admin/catalogos/tipo-medios']);
       },
       error: (err) => {
         console.error('Error al actualizar el registro:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al actualizar',
-          detail: 'Los cambios no se pudieron guardar. Verifica tu conexión.',
-        });
+        this.notificacion.error(
+          'Error al actualizar',
+          'Los cambios no se pudieron guardar.',
+        );
         this.isSubmitting.set(false);
       },
     });

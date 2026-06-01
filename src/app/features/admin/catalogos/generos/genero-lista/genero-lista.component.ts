@@ -7,10 +7,11 @@ import { TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
 import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
 import { Tooltip } from 'primeng/tooltip';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { GenerosService } from '@core/services/catalogos/generos/generos.service';
 import { GeneroDto } from '@core/models/generos.model';
+import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
   selector: 'app-genero-lista.component',
@@ -30,7 +31,7 @@ import { GeneroDto } from '@core/models/generos.model';
 export class GeneroListaComponent implements OnInit {
   private generoService: GenerosService = inject(GenerosService);
   private confirmationService: ConfirmationService = inject(ConfirmationService);
-  private messageService: MessageService = inject(MessageService);
+  private notificacion: NotificacionService = inject(NotificacionService);
 
   generos: WritableSignal<GeneroDto[]> = signal<GeneroDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
@@ -52,20 +53,12 @@ export class GeneroListaComponent implements OnInit {
     this.generoService.obtenerGeneros(miFiltro, 1, 10).subscribe({
       next: (response) => {
         this.generos.set(response);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: `Éxito al cargar los generos.`,
-        });
+        this.notificacion.exito('Éxito', `Éxito al cargar los generos.`);
         this.isLoading.set(false);
       },
       error: (err) => {
         console.error('Error al cargar los generos:', err);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error al obtener',
-          detail: 'Ocurrio un error al cargar la información',
-        });
+        this.notificacion.error('Error al obtener', 'Ocurrio un error al cargar la información');
         this.errorMessage.set('No se pudo recuperar el cátalogo de generos');
         this.isLoading.set(false);
       },
@@ -88,19 +81,13 @@ export class GeneroListaComponent implements OnInit {
         this.generoService.eliminarGenero(id).subscribe({
           next: () => {
             this.generos.update((lista) => lista.filter((c) => c.id !== id));
-
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Eliminado',
-              detail: `"${nombre}" fue eliminado exitosamente`,
-            });
+            this.notificacion.exito('Eliminado', `"${nombre}" fue eliminado exitosamente`);
           },
           error: (err) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Operación denegada',
-              detail: 'No se pudo eliminar el genero. Verifica tu conexión.',
-            });
+            this.notificacion.error(
+              'Operación denegada',
+              'No se pudo eliminar el genero.',
+            );
             console.error('Error al eliminar:', err);
           },
         });
