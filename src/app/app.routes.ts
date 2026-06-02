@@ -34,7 +34,7 @@ export const routes: Routes = [
       },
       {
         path: 'catalogos',
-        loadChildren: () => import('@features/admin/catalogos/formatos/routes/formatos.rotes')
+        loadChildren: () => import('@features/admin/catalogos/formatos/routes/formatos.routes')
           .then((m) => m.FORMATOS_ROUTES)
       },
       {
@@ -44,7 +44,7 @@ export const routes: Routes = [
       },
       {
         path: 'catalogos',
-        loadChildren: () => import('@features/admin/catalogos/tipo-medio/routes/tipo-medio.routes')
+        loadChildren: () => import('@features/admin/catalogos/tipo-medios/routes/tipo-medio.routes')
           .then((m) => m.TIPO_MEDIO_ROUTES)
       }
     ],
