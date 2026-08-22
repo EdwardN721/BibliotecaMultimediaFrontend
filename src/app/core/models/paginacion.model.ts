@@ -1,13 +1,13 @@
-export interface PaginacionMetadata{
-    totalCount: number;
-    pageSize: number;
-    currentPage: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
+export interface PaginacionMetadata {
+  paginaActual: number;
+  totalPaginas: number;
+  registrosPorPagina: number;
+  totalRegistros: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }
 
-export interface RespuestaPaginada<T>{
-    metadata: PaginacionMetadata;
-    registros: T[];
+export interface RespuestaPaginada<T> {
+  registros: T[];
+  metadata: PaginacionMetadata;
 }

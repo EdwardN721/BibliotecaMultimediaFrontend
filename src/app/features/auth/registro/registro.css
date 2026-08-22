@@ -1,0 +1,4 @@
+:host ::ng-deep .p-password,
+:host ::ng-deep .p-inputwrapper {
+  width: 100%;
+}

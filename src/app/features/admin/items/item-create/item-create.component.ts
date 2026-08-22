@@ -30,7 +30,7 @@ import { PlataformaDto } from '@core/models/plataformas.model';
 import { TipoMedioDto } from '@core/models/tipo.medios.model';
 
 @Component({
-  selector: 'app-item-create.component',
+  selector: 'app-item-create',
   standalone: true,
   imports: [
     CommonModule,
@@ -84,6 +84,7 @@ export class ItemCreateComponent implements OnInit {
       releaseDate: [null],
       rating: [null, [Validators.min(0), Validators.max(10)]],
       isFavorite: [false],
+      isbnOrUpc: [''],
       mediaTypeId: [null, Validators.required],
       formatId: [null, Validators.required],
       platformId: [null],
@@ -106,11 +107,11 @@ export class ItemCreateComponent implements OnInit {
       tipoMedios: this.tipoMedioService.obtenerTipoMedios(filtroVacio, 1, maxSize)
     }).subscribe({
       next: (resultados) => {
-        this.generos.set(resultados.generos);
-        this.creadores.set(resultados.creadores);
-        this.formatos.set(resultados.formatos);
-        this.plataformas.set(resultados.plataformas);
-        this.tiposMedio.set(resultados.tipoMedios);
+        this.generos.set(resultados.generos.registros);
+        this.creadores.set(resultados.creadores.registros);
+        this.formatos.set(resultados.formatos.registros);
+        this.plataformas.set(resultados.plataformas.registros);
+        this.tiposMedio.set(resultados.tipoMedios.registros);
         this.isLoadingCatalogos.set(false);
       },
       error: (err) =>{

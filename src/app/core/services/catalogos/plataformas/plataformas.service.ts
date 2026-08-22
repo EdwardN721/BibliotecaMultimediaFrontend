@@ -1,13 +1,16 @@
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '@env/environment';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
+import { buildPaginationParams } from '@core/utils/paginacion-params';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   ActualizarPlataformaDto,
   AgregarPlataformaDto,
   PlataformaDto,
 } from '@core/models/plataformas.model';
+import { PaginacionMetadata, RespuestaPaginada } from '@core/models/paginacion.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,10 +23,38 @@ export class PlataformasService {
     filtoPaginado: FiltroGlobal,
     pageNumber: number = 1,
     pageSize: number = 10,
-  ): Observable<PlataformaDto[]> {
-    let params: HttpParams = this.obtenerfiltro(filtoPaginado, pageNumber, pageSize);
+  ): Observable<RespuestaPaginada<PlataformaDto>> {
+    const params: HttpParams = buildPaginationParams(filtoPaginado, pageNumber, pageSize);
 
-    return this.http.get<PlataformaDto[]>(`${this.apiUrl}/paginado`, { params });
+    return this.http.get<PlataformaDto[]>(`${this.apiUrl}/paginado`, { params, observe: 'response' }).pipe(
+      map((respuesta) => ({
+        registros: respuesta.body ?? [],
+        metadata: this.leerMetadata(respuesta),
+      })),
+    );
+  }
+
+  private leerMetadata(respuesta: HttpResponse<PlataformaDto[]>): PaginacionMetadata {
+    const header = respuesta.headers.get('X-Pagination');
+    const porDefecto: PaginacionMetadata = {
+      paginaActual: 1,
+      totalPaginas: 0,
+      registrosPorPagina: 10,
+      totalRegistros: 0,
+      hasPreviousPage: false,
+      hasNextPage: false,
+    };
+
+    if (!header) {
+      return porDefecto;
+    }
+
+    try {
+      const metadata = JSON.parse(header) as Partial<PaginacionMetadata>;
+      return { ...porDefecto, ...metadata };
+    } catch {
+      return porDefecto;
+    }
   }
 
   obtenerPlataformaPorId(id: string): Observable<PlataformaDto> {
@@ -40,25 +71,5 @@ export class PlataformasService {
 
   eliminarPlataforma(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  private obtenerfiltro(filtro: FiltroGlobal, pageNumber: number, pageSize: number): HttpParams {
-    let params: HttpParams = new HttpParams()
-      .set('pageNumber', pageNumber)
-      .set('pageSize', pageSize);
-
-    if (filtro.terminoBusqueda) {
-      params = params.set('TerminoBusqueda', filtro.terminoBusqueda);
-    }
-
-    if (filtro.ordenadoPor) {
-      params = params.set('OrdenarPor', filtro.ordenadoPor);
-    }
-
-    if (filtro.ordenDescendente !== undefined) {
-      params = params.set('OrdenDescendente', filtro.ordenDescendente);
-    }
-
-    return params;
   }
 }

@@ -39,6 +39,26 @@
           </div>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Fecha de Lanzamiento</label>
+            <p-iconField iconPosition="left">
+              <p-inputIcon class="pi pi-calendar text-slate-400 dark:text-slate-500"></p-inputIcon>
+              <input pInputText type="date" formControlName="releaseDate" placeholder="AAAA-MM-DD"
+                     class="w-full p-3 pl-10 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner" />
+            </p-iconField>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">ISBN / UPC (Opcional)</label>
+            <p-iconField iconPosition="left">
+              <p-inputIcon class="pi pi-barcode text-slate-400 dark:text-slate-500"></p-inputIcon>
+              <input pInputText formControlName="isbnOrUpc" placeholder="Código de identificación"
+                     class="w-full p-3 pl-10 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner" />
+            </p-iconField>
+          </div>
+        </div>
+
         <div class="flex flex-col gap-2">
           <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Sinopsis / Descripción</label>
           <textarea pTextarea formControlName="descripcion" rows="4" placeholder="Escribe un breve resumen de la trama..."

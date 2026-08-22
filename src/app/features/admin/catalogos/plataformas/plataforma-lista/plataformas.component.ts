@@ -15,6 +15,16 @@ import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Tooltip } from 'primeng/tooltip';
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { PaginacionMetadata } from '@core/models/paginacion.model';
+
+const METADATA_VACIA: PaginacionMetadata = {
+  paginaActual: 1,
+  totalPaginas: 0,
+  registrosPorPagina: 10,
+  totalRegistros: 0,
+  hasPreviousPage: false,
+  hasNextPage: false,
+};
 
 @Component({
   selector: 'app-plataformas.componetn',
@@ -42,6 +52,12 @@ export class PlataformasComponent implements OnInit {
   plataformas: WritableSignal<PlataformaDto[]> = signal<PlataformaDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
   errorMessage: WritableSignal<string | null> = signal<string | null>(null);
+  metadata: WritableSignal<PaginacionMetadata> = signal<PaginacionMetadata>({ ...METADATA_VACIA });
+
+  paginaActual = signal(1);
+  tamanioPagina = signal(10);
+  campoOrden = signal('');
+  ordenDescendente = signal(true);
 
   ngOnInit() {
     this.cargarPlataformas();
@@ -52,13 +68,14 @@ export class PlataformasComponent implements OnInit {
 
     const miFiltro: FiltroGlobal = {
       terminoBusqueda: '',
-      ordenadoPor: '',
-      ordenDescendente: true,
+      ordenadoPor: this.campoOrden(),
+      ordenDescendente: this.ordenDescendente(),
     };
 
-    this.plataformaService.obtenerPlataformas(miFiltro, 1, 10).subscribe({
-      next: (response) => {
-        this.plataformas.set(response);
+    this.plataformaService.obtenerPlataformas(miFiltro, this.paginaActual(), this.tamanioPagina()).subscribe({
+      next: (respuesta) => {
+        this.plataformas.set(respuesta.registros);
+        this.metadata.set(respuesta.metadata);
         this.notificacion.exito('Éxito al obtener', `Éxito al cargar plataformas.`);
         this.isLoading.set(false);
       },
@@ -72,6 +89,21 @@ export class PlataformasComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  alCambiarPagina(evento: { first?: number; rows?: number }) {
+    if (!evento.rows) return;
+    this.tamanioPagina.set(evento.rows);
+    this.paginaActual.set(Math.floor((evento.first ?? 0) / evento.rows) + 1);
+    this.cargarPlataformas();
+  }
+
+  alOrdenar(evento: { field?: string; order?: number }) {
+    if (!evento.field) return;
+    this.campoOrden.set(evento.field);
+    this.ordenDescendente.set(evento.order !== 1);
+    this.paginaActual.set(1);
+    this.cargarPlataformas();
   }
 
   eliminar(id: string, nombre: string) {
@@ -89,8 +121,11 @@ export class PlataformasComponent implements OnInit {
       accept: () => {
         this.plataformaService.eliminarPlataforma(id).subscribe({
           next: () => {
-            this.plataformas.update((lista) => lista.filter((c) => c.id !== id));
             this.notificacion.exito('Eliminado', `"${nombre}" fue eliminado exitosamente`);
+            if (this.plataformas().length === 1 && this.paginaActual() > 1) {
+              this.paginaActual.update((p) => p - 1);
+            }
+            this.cargarPlataformas();
           },
           error: (err) => {
             this.notificacion.error(

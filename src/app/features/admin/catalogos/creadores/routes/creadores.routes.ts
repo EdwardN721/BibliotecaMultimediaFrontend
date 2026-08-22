@@ -1,20 +1,20 @@
 export const CREADORES_ROUTES = [
   {
-    path: 'creadores',
+    path: '',
     loadComponent: () =>
       import('@features/admin/catalogos/creadores/creadores-list/creadores-list.component').then(
         (m) => m.CreadoresListComponent,
       ),
   },
   {
-    path: 'creadores/nuevo',
+    path: 'nuevo',
     loadComponent: () =>
       import('@features/admin/catalogos/creadores/creadores-nuevo/creadores-nuevo.component').then(
         (m) => m.CreadoresNuevoComponent,
       ),
   },
   {
-    path: 'creadores/editar/:id',
+    path: 'editar/:id',
     loadComponent: () =>
       import('@features/admin/catalogos/creadores/creadores-editar/creadores-editar.component').then(
         (m) => m.CreadoresEditarComponent,

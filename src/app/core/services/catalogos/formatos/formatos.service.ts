@@ -1,9 +1,12 @@
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { environment } from '@env/environment.development';
+import { environment } from '@env/environment';
 import { ActualizarFormatoDto, AgregarFormatoDto, FormatosDto } from '@core/models/formatos.model';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
+import { buildPaginationParams } from '@core/utils/paginacion-params';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { PaginacionMetadata, RespuestaPaginada } from '@core/models/paginacion.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +19,38 @@ export class FormatosService {
     filtroPaginado: FiltroGlobal,
     pageNumber: number = 1,
     pageSize: number = 10,
-  ): Observable<FormatosDto[]> {
-    let params: HttpParams = this.obtenerFiltro(filtroPaginado, pageNumber, pageSize);
+  ): Observable<RespuestaPaginada<FormatosDto>> {
+    const params: HttpParams = buildPaginationParams(filtroPaginado, pageNumber, pageSize);
 
-    return this.http.get<FormatosDto[]>(`${this.apiUrl}/paginado`, { params });
+    return this.http.get<FormatosDto[]>(`${this.apiUrl}/paginado`, { params, observe: 'response' }).pipe(
+      map((respuesta) => ({
+        registros: respuesta.body ?? [],
+        metadata: this.leerMetadata(respuesta),
+      })),
+    );
+  }
+
+  private leerMetadata(respuesta: HttpResponse<FormatosDto[]>): PaginacionMetadata {
+    const header = respuesta.headers.get('X-Pagination');
+    const porDefecto: PaginacionMetadata = {
+      paginaActual: 1,
+      totalPaginas: 0,
+      registrosPorPagina: 10,
+      totalRegistros: 0,
+      hasPreviousPage: false,
+      hasNextPage: false,
+    };
+
+    if (!header) {
+      return porDefecto;
+    }
+
+    try {
+      const metadata = JSON.parse(header) as Partial<PaginacionMetadata>;
+      return { ...porDefecto, ...metadata };
+    } catch {
+      return porDefecto;
+    }
   }
 
   obtenerFormatoPorId(id: string): Observable<FormatosDto> {
@@ -36,29 +67,5 @@ export class FormatosService {
 
   eliminarFormato(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  private obtenerFiltro(
-    filtroPaginado: FiltroGlobal,
-    pageNumber: number,
-    pageSize: number,
-  ): HttpParams {
-    let params: HttpParams = new HttpParams()
-      .set('pageNumber', pageNumber)
-      .set('pageSize', pageSize);
-
-    if (filtroPaginado.terminoBusqueda) {
-      params = params.set('TerminoBusqueda', filtroPaginado.terminoBusqueda);
-    }
-
-    if (filtroPaginado.ordenadoPor) {
-      params = params.set('OrdenarPor', filtroPaginado.ordenadoPor);
-    }
-
-    if (filtroPaginado.ordenDescendente !== undefined) {
-      params = params.set('OrdenDescendente', filtroPaginado.ordenDescendente);
-    }
-
-    return params;
   }
 }

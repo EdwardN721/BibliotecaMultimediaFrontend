@@ -22,7 +22,7 @@ export class NotificacionService {
     this.messageService.add({
       severity: 'error',
       summary: titulo,
-      detail: 'mensaje',
+      detail: mensaje,
       styleClass: this.globalStyle,
     });
   }

@@ -19,14 +19,27 @@
 
   <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
 
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 border-b border-slate-100 dark:border-slate-800/60">
+      <p-iconfield class="w-full sm:w-80">
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" placeholder="Buscar por título..."
+               (keyup.enter)="buscar()" [ngModel]="terminoBusqueda()"
+               (ngModelChange)="terminoBusqueda.set($event)"
+               class="w-full rounded-xl" />
+      </p-iconfield>
+    </div>
+
     <p-table
       [value]="items()"
       [loading]="isLoading()"
       [paginator]="true"
-      [rows]="10"
+      [rows]="rows()"
+      [totalRecords]="totalRecords()"
       [rowsPerPageOptions]="[5, 10, 20]"
       [rowHover]="true"
       [scrollable]="true"
+      [lazy]="true"
+      (onLazyLoad)="onPageChange($event)"
       size="large"
       class="w-full">
 

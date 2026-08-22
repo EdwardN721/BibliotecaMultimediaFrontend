@@ -56,6 +56,37 @@
                     class="w-full p-3 resize-none leading-relaxed bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all shadow-inner"></textarea>
         </div>
 
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Tipo de Medio <span class="text-red-500">*</span></label>
+            <p-select [options]="tiposMedio()" optionLabel="nombre" optionValue="id" formControlName="mediaTypeId"
+                      placeholder="Selecciona tipo" class="w-full" styleClass="w-full" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Formato <span class="text-red-500">*</span></label>
+            <p-select [options]="formatos()" optionLabel="nombre" optionValue="id" formControlName="formatId"
+                      placeholder="Selecciona formato" class="w-full" styleClass="w-full" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Plataforma</label>
+            <p-select [options]="plataformas()" optionLabel="nombre" optionValue="id" formControlName="platformId"
+                      placeholder="Selecciona plataforma (opcional)" class="w-full" styleClass="w-full" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Géneros <span class="text-red-500">*</span></label>
+            <p-multiselect [options]="generos()" optionLabel="nombre" optionValue="id" formControlName="genreIds"
+                           placeholder="Selecciona géneros" display="chip" class="w-full" styleClass="w-full" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Creadores</label>
+            <p-multiselect [options]="creadores()" optionLabel="nombre" optionValue="id" formControlName="creatorIds"
+                           placeholder="Selecciona creadores" display="chip" class="w-full" styleClass="w-full" />
+          </div>
+        </div>
+
         <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center space-x-4 hover:border-orange-500/50 transition-colors shadow-sm">
           <p-checkbox formControlName="isFavorite" [binary]="true" inputId="isFavEdit" class="bg-white dark:bg-slate-800 rounded border border-slate-400 dark:border-slate-500"></p-checkbox>
           <div>

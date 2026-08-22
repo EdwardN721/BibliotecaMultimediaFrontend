@@ -1,0 +1,99 @@
+<div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 transition-colors duration-300">
+
+  <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-8 sm:p-10 transition-colors duration-300">
+
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white mb-4 shadow-lg shadow-blue-500/30">
+        <i class="pi pi-play text-xl"></i>
+      </div>
+      <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">StreamBox</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Crea tu cuenta para comenzar</p>
+    </div>
+
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+      <div class="space-y-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Correo Electrónico</label>
+        <input type="email" pInputText formControlName="email" class="w-full" placeholder="ejemplo@correo.com" />
+        @if (esInvalido('email')) {
+          @if (registroForm.controls.email.errors?.['required']) {
+            <small class="text-red-500">El correo es obligatorio.</small>
+          } @else {
+            <small class="text-red-500">Ingresa un correo válido.</small>
+          }
+        }
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Nombre</label>
+          <input type="text" pInputText formControlName="nombre" class="w-full" placeholder="Ana" />
+          @if (esInvalido('nombre')) {
+            <small class="text-red-500">El nombre es obligatorio (máx. 100).</small>
+          }
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Primer Apellido</label>
+          <input type="text" pInputText formControlName="primerApellido" class="w-full" placeholder="García" />
+          @if (esInvalido('primerApellido')) {
+            <small class="text-red-500">El primer apellido es obligatorio (máx. 100).</small>
+          }
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Segundo Apellido <span class="font-normal text-slate-400">(opcional)</span></label>
+          <input type="text" pInputText formControlName="segundoApellido" class="w-full" placeholder="López" />
+          @if (esInvalido('segundoApellido')) {
+            <small class="text-red-500">Máximo 100 caracteres.</small>
+          }
+        </div>
+        <div class="space-y-2">
+          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Teléfono <span class="font-normal text-slate-400">(opcional)</span></label>
+          <input type="tel" pInputText formControlName="phoneNumber" class="w-full" placeholder="5512345678" maxlength="10" />
+          @if (esInvalido('phoneNumber')) {
+            <small class="text-red-500">Debe tener exactamente 10 dígitos.</small>
+          }
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Contraseña</label>
+        <p-password formControlName="password" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" placeholder="••••••••" />
+        @if (esInvalido('password')) {
+          <small class="text-red-500 block">Mínimo 8 caracteres, una mayúscula y un número.</small>
+        }
+      </div>
+
+      <div class="space-y-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Confirmar Contraseña</label>
+        <p-password formControlName="confirmarPassword" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" placeholder="••••••••" />
+        @if (contrasenasNoCoinciden) {
+          <small class="text-red-500 block">Las contraseñas no coinciden.</small>
+        } @else if (esInvalido('confirmarPassword')) {
+          <small class="text-red-500 block">Confirma tu contraseña.</small>
+        }
+      </div>
+
+      @if (errorMessage()) {
+        <div class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400 flex items-start space-x-2">
+          <i class="pi pi-exclamation-circle mt-0.5"></i>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <p-button type="submit" label="Crear Cuenta" icon="pi pi-user-plus"
+        [loading]="isLoading()"
+        [disabled]="registroForm.invalid || isLoading()"
+        styleClass="w-full justify-center py-3 bg-blue-600 hover:bg-blue-700 border-none rounded-xl font-semibold shadow-md shadow-blue-500/20">
+      </p-button>
+
+      <p class="text-center text-sm text-slate-500 dark:text-slate-400">
+        ¿Ya tienes cuenta?
+        <a routerLink="/login" class="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400">Inicia sesión</a>
+      </p>
+
+    </form>
+  </div>
+</div>

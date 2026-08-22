@@ -2,8 +2,19 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { ActualizarItemDto } from '@core/models/item.model';
 import { ItemService } from '@core/services/items/item.service';
+import { GenerosService } from '@core/services/catalogos/generos/generos.service';
+import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
+import { FormatosService } from '@core/services/catalogos/formatos/formatos.service';
+import { PlataformasService } from '@core/services/catalogos/plataformas/plataformas.service';
+import { TipoMediosService } from '@core/services/catalogos/tipo-medios/tipo-medios.service';
+import { GeneroDto } from '@core/models/generos.model';
+import { CreadorDto } from '@core/models/creadores.model';
+import { FormatosDto } from '@core/models/formatos.model';
+import { PlataformaDto } from '@core/models/plataformas.model';
+import { TipoMedioDto } from '@core/models/tipo.medios.model';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -11,10 +22,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
 
 @Component({
-  selector: 'app-item-edit.component',
+  selector: 'app-item-edit',
   standalone: true,
   imports: [
     CommonModule,
@@ -26,7 +39,9 @@ import { NotificacionService } from '@core/services/notificacion/notificacion.se
     CheckboxModule,
     TextareaModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    SelectModule,
+    MultiSelectModule,
   ],
   templateUrl: './item-edit.component.html',
   styleUrl: './item-edit.component.css',
@@ -38,27 +53,41 @@ export class ItemEditComponent implements OnInit {
   private route: ActivatedRoute = inject(ActivatedRoute);
   private notificacion: NotificacionService = inject(NotificacionService);
 
+  private generosService: GenerosService = inject(GenerosService);
+  private creadoresService: CreadoresService = inject(CreadoresService);
+  private formatosService: FormatosService = inject(FormatosService);
+  private plataformasService: PlataformasService = inject(PlataformasService);
+  private tipoMedioService: TipoMediosService = inject(TipoMediosService);
+
   isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
   isLoadingData: WritableSignal<boolean> = signal<boolean>(true);
+  isLoadingCatalogos: WritableSignal<boolean> = signal<boolean>(false);
   itemId: string = '';
+
+  generos: WritableSignal<GeneroDto[]> = signal<GeneroDto[]>([]);
+  creadores: WritableSignal<CreadorDto[]> = signal<CreadorDto[]>([]);
+  formatos: WritableSignal<FormatosDto[]> = signal<FormatosDto[]>([]);
+  plataformas: WritableSignal<PlataformaDto[]> = signal<PlataformaDto[]>([]);
+  tiposMedio: WritableSignal<TipoMedioDto[]> = signal<TipoMedioDto[]>([]);
 
   itemForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(150)]],
-    releaseDate: ['', [Validators.required]],
-    rating: [0, [Validators.required, Validators.min(0), Validators.max(10)]],
+    releaseDate: [''],
+    rating: [0, [Validators.min(0), Validators.max(10)]],
     isFavorite: [false],
     descripcion: [''],
-    Metadata: [{}],
-    mediaTypeId: [''],
-    formatId: [''],
-    platformId: [''],
-    genreIds: [[]],
-    creatorIds: [[]]
+    metadata: [{}],
+    mediaTypeId: [null, Validators.required],
+    formatId: [null, Validators.required],
+    platformId: [null],
+    genreIds: [[], Validators.required],
+    creatorIds: [[]],
   });
 
   ngOnInit() {
     this.itemId = this.route.snapshot.paramMap.get('id')!;
 
+    this.cargarCatalogos();
     this.itemService.obtenerItemPorId(this.itemId).subscribe({
       next: (item) => {
         const fechaLimpia = item.releaseDate ? item.releaseDate.split('T')[0] : '';
@@ -69,20 +98,49 @@ export class ItemEditComponent implements OnInit {
           rating: item.rating,
           isFavorite: item.isFavorite,
           descripcion: item.descripcion || '',
-          Metadata: item.metadata || {},
-          mediaTypeId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          formatId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          platformId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-          genreIds: [],
-          creatorIds: []
+          metadata: item.metadata || {},
+          mediaTypeId: item.mediaTypeId,
+          formatId: item.formatId,
+          platformId: item.platformId ?? null,
+          genreIds: item.genreIds ?? [],
+          creatorIds: item.creatorIds ?? [],
         });
-        this.notificacion.exito('Éxito al obtener', 'Éxito al obtener el artículo.')
         this.isLoadingData.set(false);
       },
       error: (err) => {
         console.error('Error:', err);
-        this.notificacion.error('Error al obtener.', 'Error al obtener el artículo.')
+        this.notificacion.error('Error al obtener', 'Error al obtener el artículo.');
+        this.isLoadingData.set(false);
         this.router.navigate(['/admin/items']);
+      },
+    });
+  }
+
+  cargarCatalogos() {
+    this.isLoadingCatalogos.set(true);
+
+    const filtroVacio = { terminoBusqueda: '', ordenadoPor: '', ordenDescendente: true };
+    const maxSize = 60;
+
+    forkJoin({
+      generos: this.generosService.obtenerGeneros(filtroVacio, 1, maxSize),
+      creadores: this.creadoresService.obtenerCreadores(filtroVacio, 1, maxSize),
+      formatos: this.formatosService.obtenerFormatos(filtroVacio, 1, maxSize),
+      plataformas: this.plataformasService.obtenerPlataformas(filtroVacio, 1, maxSize),
+      tipoMedios: this.tipoMedioService.obtenerTipoMedios(filtroVacio, 1, maxSize),
+    }).subscribe({
+      next: (resultados) => {
+        this.generos.set(resultados.generos.registros);
+        this.creadores.set(resultados.creadores.registros);
+        this.formatos.set(resultados.formatos.registros);
+        this.plataformas.set(resultados.plataformas.registros);
+        this.tiposMedio.set(resultados.tipoMedios.registros);
+        this.isLoadingCatalogos.set(false);
+      },
+      error: (err) => {
+        console.error('Error al cargar catálogos:', err);
+        this.notificacion.error('Error de Catálogos', 'No se pudieron cargar las opciones.');
+        this.isLoadingCatalogos.set(false);
       },
     });
   }
@@ -93,31 +151,31 @@ export class ItemEditComponent implements OnInit {
     this.isSubmitting.set(true);
     const formValues = this.itemForm.getRawValue();
 
-    // Construcción limpia del body respetando el contrato de ActualizarItemDto
     const payload: ActualizarItemDto = {
       title: formValues.title,
-      releaseDate: formValues.releaseDate,
-      rating: formValues.rating,
+      releaseDate: formValues.releaseDate || null,
+      rating: formValues.rating ?? null,
       isFavorite: formValues.isFavorite,
-      Metadata: formValues.Metadata || {},
-      mediaTypeId: formValues.mediaTypeId || '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      formatId: formValues.formatId || '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      platformId: formValues.platformId || '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      descripcion: formValues.descripcion || null,
+      metadata: Object.keys(formValues.metadata || {}).length ? formValues.metadata : null,
+      mediaTypeId: formValues.mediaTypeId,
+      formatId: formValues.formatId,
+      platformId: formValues.platformId || null,
       genreIds: formValues.genreIds || [],
-      creatorIds: formValues.creatorIds || []
+      creatorIds: formValues.creatorIds || [],
     };
 
     this.itemService.actualizarItem(this.itemId, payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.notificacion.info('Cambibios guardados', 'Cambios guardados con éxito.')
+        this.notificacion.exito('Cambios guardados', 'Cambios guardados con éxito.');
         this.router.navigate(['/admin/items']);
       },
       error: (err) => {
         console.error('Error al actualizar el registro:', err);
-        this.notificacion.error('Error al actualizar', 'Ocurrio un error inesperado.')
+        this.notificacion.error('Error al actualizar', err.error?.detail ?? 'Ocurrió un error inesperado.');
         this.isSubmitting.set(false);
-      }
+      },
     });
   }
 }

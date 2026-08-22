@@ -8,6 +8,10 @@ export const routes: Routes = [
     loadComponent: () => import('@features/auth/login/login').then((m) => m.Login),
   },
   {
+    path: 'registro',
+    loadComponent: () => import('@features/auth/registro/registro').then((m) => m.Registro),
+  },
+  {
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () => import('@shared/components/layout/layout').then((m) => m.LayoutComponent),
@@ -24,28 +28,38 @@ export const routes: Routes = [
       },
       {
         path: 'catalogos',
-        loadChildren: () => import('@features/admin/catalogos/creadores/routes/creadores.routes')
-          .then((m) => m.CREADORES_ROUTES)
-      },
-      {
-        path: 'catalogos',
-        loadChildren: () => import('@features/admin/catalogos/plataformas/routes/plataformas.routes')
-          .then((m) => m.PLATAFORMAS_ROUTES)
-      },
-      {
-        path: 'catalogos',
-        loadChildren: () => import('@features/admin/catalogos/formatos/routes/formatos.routes')
-          .then((m) => m.FORMATOS_ROUTES)
-      },
-      {
-        path: 'catalogos',
-        loadChildren: () => import('@features/admin/catalogos/generos/routes/genero.routes')
-          .then((m) => m.GENERO_ROUTES)
-      },
-      {
-        path: 'catalogos',
-        loadChildren: () => import('@features/admin/catalogos/tipo-medios/routes/tipo-medio.routes')
-          .then((m) => m.TIPO_MEDIO_ROUTES)
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: 'creadores',
+          },
+          {
+            path: 'creadores',
+            loadChildren: () => import('@features/admin/catalogos/creadores/routes/creadores.routes')
+              .then((m) => m.CREADORES_ROUTES)
+          },
+          {
+            path: 'plataformas',
+            loadChildren: () => import('@features/admin/catalogos/plataformas/routes/plataformas.routes')
+              .then((m) => m.PLATAFORMAS_ROUTES)
+          },
+          {
+            path: 'formatos',
+            loadChildren: () => import('@features/admin/catalogos/formatos/routes/formatos.routes')
+              .then((m) => m.FORMATOS_ROUTES)
+          },
+          {
+            path: 'generos',
+            loadChildren: () => import('@features/admin/catalogos/generos/routes/genero.routes')
+              .then((m) => m.GENERO_ROUTES)
+          },
+          {
+            path: 'tipo-medios',
+            loadChildren: () => import('@features/admin/catalogos/tipo-medios/routes/tipo-medio.routes')
+              .then((m) => m.TIPO_MEDIO_ROUTES)
+          }
+        ]
       }
     ],
   },
@@ -57,7 +71,11 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('@features/user/dashboard/dashboard').then((m) => m.Dashboard),
-      }
+      },
+      {
+        path: 'explorar',
+        loadComponent: () => import('@features/user/explorar/explorar').then((m) => m.Explorar),
+      },
     ]
   },
   {

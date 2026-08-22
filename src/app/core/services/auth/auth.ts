@@ -1,6 +1,6 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { environment } from '../../../../environments/environment.development';
-import { AuthResponse, LoginDto, UserState } from '../../models/auth.model';
+import { environment } from '@env/environment';
+import { AuthResponse, LoginDto, RegistroDto, UserState } from '../../models/auth.model';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
@@ -31,6 +31,16 @@ export class AuthService {
         localStorage.setItem('jwt_token', response.token);
         
         // 2. Ejecutamos nuestra nueva función para decodificar
+        this.decodeAndSetUser(response.token);
+      }),
+    );
+  }
+
+  registrar(datos: RegistroDto) {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/registrar`, datos).pipe(
+      tap((response) => {
+        // Auto-login: el backend responde 201 con token + usuario
+        localStorage.setItem('jwt_token', response.token);
         this.decodeAndSetUser(response.token);
       }),
     );

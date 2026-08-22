@@ -2,8 +2,9 @@ import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core
 import { ItemService } from '@core/services/items/item.service';
 import { ItemDto } from '@core/models/item.model';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -13,9 +14,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
-  selector: 'app-items.component',
+  selector: 'app-items-list',
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     TableModule,
     ButtonModule,
@@ -35,6 +37,9 @@ export class ItemsComponent implements OnInit {
   items: WritableSignal<ItemDto[]> = signal<ItemDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
   errorMessage: WritableSignal<string | null> = signal<string | null>(null);
+  totalRecords: WritableSignal<number> = signal(0);
+  rows: WritableSignal<number> = signal(10);
+  terminoBusqueda: WritableSignal<string> = signal('');
 
   ngOnInit() {
     this.cargarCatalogo();
@@ -44,20 +49,15 @@ export class ItemsComponent implements OnInit {
     this.isLoading.set(true);
 
     const miFiltro: FiltroGlobal = {
-      terminoBusqueda: '',
+      terminoBusqueda: this.terminoBusqueda(),
       ordenadoPor: '',
       ordenDescendente: true,
     };
 
-    this.itemService.obtenerItems(miFiltro, 1, 10).subscribe({
-      next: (response) => {
-        this.items.set(response);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: `Éxito al cargar los articulos.`,
-          styleClass: 'p-2 rounded-2xl shadow-xl',
-        });
+    this.itemService.obtenerItems(miFiltro, 1, this.rows()).subscribe({
+      next: (respuesta) => {
+        this.items.set(respuesta.registros);
+        this.totalRecords.set(respuesta.metadata.totalRegistros);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -70,6 +70,32 @@ export class ItemsComponent implements OnInit {
         });
         this.errorMessage.set('No se pudo recuperar el catálogo de ítems.');
         this.isLoading.set(false);
+      },
+    });
+  }
+
+  buscar() {
+    this.cargarCatalogo();
+  }
+
+  onPageChange(event: TableLazyLoadEvent) {
+    const pageSize = event.rows ?? 10;
+    const first = event.first ?? 0;
+    this.rows.set(pageSize);
+
+    const miFiltro: FiltroGlobal = {
+      terminoBusqueda: this.terminoBusqueda(),
+      ordenadoPor: '',
+      ordenDescendente: true,
+    };
+
+    this.itemService.obtenerItems(miFiltro, Math.floor(first / pageSize) + 1, pageSize).subscribe({
+      next: (respuesta) => {
+        this.items.set(respuesta.registros);
+        this.totalRecords.set(respuesta.metadata.totalRegistros);
+      },
+      error: (err) => {
+        console.error('Error al cargar la página:', err);
       },
     });
   }
@@ -90,6 +116,7 @@ export class ItemsComponent implements OnInit {
         this.itemService.eliminarItem(id).subscribe({
           next: () => {
             this.items.update((lista) => lista.filter((c) => c.id !== id));
+            this.totalRecords.update((t) => Math.max(0, t - 1));
 
             this.messageService.add({
               severity: 'success',
