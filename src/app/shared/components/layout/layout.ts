@@ -22,6 +22,11 @@ export class LayoutComponent {
   isMobileMenuOpen: WritableSignal<boolean> = signal<boolean>(false);
   isCatalogosOpen: WritableSignal<boolean> = signal<boolean>(false);
 
+  constructor() {
+    // El panel de administración usa tema oscuro profesional
+    this.themeService.setDarkMode(true);
+  }
+
   currentRoleLabel(): string {
     if (this.authService.isAdmin()) return 'Administrador';
     if (this.authService.isRegularUser()) return 'Usuario Estándar';

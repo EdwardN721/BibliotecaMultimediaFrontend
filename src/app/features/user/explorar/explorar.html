@@ -1,98 +1,99 @@
-<div class="max-w-7xl mx-auto space-y-8">
+<div class="min-h-screen bg-[#141414] pt-24 pb-16">
 
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/60">
-    <div>
-      <h2 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Explorar Catálogo</h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Descubre películas, series y videojuegos y agrégalos a tu biblioteca.</p>
+  <!-- Encabezado -->
+  <div class="px-4 sm:px-10 mb-6">
+    <h1 class="text-2xl sm:text-3xl font-black text-white">Explorar catálogo</h1>
+    <p class="text-sm text-zinc-500 mt-1">Descubre películas, series, libros, juegos y más.</p>
+  </div>
+
+  <!-- Filtros -->
+  <div class="sticky top-16 z-30 bg-[#141414]/95 backdrop-blur-md px-4 sm:px-10 py-4 border-b border-zinc-800/60">
+    <form (submit)="$event.preventDefault(); buscar(true)" class="flex flex-col lg:flex-row lg:items-center gap-3">
+
+      <div class="relative flex-1 min-w-[200px]">
+        <i class="pi pi-search absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 text-sm"></i>
+        <input [(ngModel)]="terminoBusqueda" name="busqueda" type="text"
+               placeholder="Buscar por título..."
+               class="w-full bg-zinc-900 ring-1 ring-zinc-700 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-red-600" />
+      </div>
+
+      <select [(ngModel)]="generoSeleccionado" name="genero" (change)="buscar(true)"
+              class="bg-zinc-900 ring-1 ring-zinc-700 text-zinc-200 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-600">
+        <option value="">Todos los géneros</option>
+        @for (g of generos(); track g.id) {
+          <option [value]="g.id">{{ g.name }}</option>
+        }
+      </select>
+
+      <select [(ngModel)]="plataformaSeleccionada" name="plataforma" (change)="buscar(true)"
+              class="bg-zinc-900 ring-1 ring-zinc-700 text-zinc-200 text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-600">
+        <option value="">Todas las plataformas</option>
+        @for (p of plataformas(); track p.id) {
+          <option [value]="p.id">{{ p.nombre }}</option>
+        }
+      </select>
+
+      @if (hayFiltrosActivos()) {
+        <button type="button" (click)="limpiarFiltros()"
+                class="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors">
+          <i class="pi pi-filter-slash text-xs"></i> Limpiar
+        </button>
+      }
+
+      <button type="submit"
+              class="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-colors">
+        Buscar
+      </button>
+    </form>
+
+    <!-- Chips de tipo de medio -->
+    <div class="flex gap-2 overflow-x-auto scrollbar-none mt-3 -mb-1">
+      <button (click)="tipoSeleccionado = ''; buscar(true)"
+              class="shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all ring-1"
+              [ngClass]="!tipoSeleccionado ? 'bg-white text-black ring-white' : 'bg-transparent text-zinc-400 ring-zinc-700 hover:ring-zinc-500 hover:text-white'">
+        Todos
+      </button>
+      @for (tipo of tiposMedio(); track tipo.id) {
+        <button (click)="tipoSeleccionado = tipo.id; buscar(true)"
+                class="shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all ring-1"
+                [ngClass]="tipoSeleccionado === tipo.id ? 'bg-red-600 text-white ring-red-600' : 'bg-transparent text-zinc-400 ring-zinc-700 hover:ring-zinc-500 hover:text-white'">
+          {{ tipo.nombre }}
+        </button>
+      }
     </div>
   </div>
 
-  <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+  <!-- Grid de resultados -->
+  <section class="px-4 sm:px-10 pt-6">
+    @if (isLoading()) {
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+        @for (i of [1,2,3,4,5,6,7,8,9,10,11,12]; track i) {
+          <app-skeleton-card />
+        }
+      </div>
+    } @else if (tarjetas().length === 0) {
+      <div class="py-20 text-center">
+        <i class="pi pi-compass text-5xl text-zinc-800"></i>
+        <p class="mt-4 text-lg font-bold text-zinc-300">Sin resultados</p>
+        <p class="text-sm text-zinc-600 mt-1">Prueba con otros términos o quita los filtros.</p>
+      </div>
+    } @else {
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+        @for (tarjeta of tarjetas(); track tarjeta.id) {
+          <app-poster-card [item]="tarjeta" [mostrarAgregar]="true"
+                           (agregar)="agregarDesdeTarjeta($event)"
+                           (toggleFavorito)="toggleFavoritoDesdeTarjeta($event)" />
+        }
+      </div>
 
-    <p-table
-      [value]="items()"
-      [loading]="isLoading()"
-      [paginator]="true"
-      [rows]="10"
-      [rowsPerPageOptions]="[5, 10, 20]"
-      [rowHover]="true"
-      [scrollable]="true"
-      size="large"
-      class="w-full">
-
-      <ng-template pTemplate="header">
-        <tr>
-          <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Título</th>
-          <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Tipo</th>
-          <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Plataforma</th>
-          <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-center px-6 py-4">Calificación</th>
-          <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-right px-6 py-4">Acciones</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-item>
-        <tr class="border-b border-slate-100 dark:border-slate-800/60 transition-colors">
-
-          <td class="px-6 py-4">
-            <div class="flex items-center space-x-3">
-              @if (item.isFavorite) {
-                <i class="pi pi-star-fill text-amber-400 text-xs" title="Favorito"></i>
-              }
-              <div>
-                <div class="font-bold text-slate-900 dark:text-white text-base">{{ item.title }}</div>
-                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium tracking-wide">
-                  {{ item.format }} @if (item.releaseDate) { &bull; {{ item.releaseDate | date:'yyyy' }} }
-                </div>
-              </div>
-            </div>
-          </td>
-
-          <td class="px-6 py-4">
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide border
-              bg-indigo-50 text-indigo-700 border-indigo-200
-              dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800/50">
-              {{ item.mediaType }}
-            </span>
-          </td>
-
-          <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 text-sm">
-            {{ item.platform }}
-          </td>
-
-          <td class="px-6 py-4 text-center">
-            <div class="inline-flex items-center justify-center space-x-1 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
-              <span class="text-amber-500 dark:text-amber-400 text-sm"><i class="pi pi-star-fill"></i></span>
-              <span class="font-black text-slate-800 dark:text-slate-100">{{ item.rating ?? '—' }}</span>
-              <span class="text-xs text-slate-400 font-bold">/ 10</span>
-            </div>
-          </td>
-
-          <td class="px-6 py-4 text-right">
-            <p-button [icon]="estaAgregando(item.id) ? 'pi pi-spin pi-spinner' : 'pi pi-plus'"
-                      [label]="estaAgregando(item.id) ? 'Agregando...' : 'Agregar'"
-                      pTooltip="Agregar a mi biblioteca" tooltipPosition="top"
-                      [loading]="estaAgregando(item.id)"
-                      (onClick)="agregarABiblioteca(item)"
-                      styleClass="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white border-none rounded-xl text-sm font-bold transition-all shadow-sm hover:shadow-emerald-500/30">
-            </p-button>
-          </td>
-
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="5" class="text-center py-16">
-            <div class="flex flex-col items-center justify-center">
-              <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                <i class="pi pi-folder-open text-3xl text-slate-400 dark:text-slate-500"></i>
-              </div>
-              <h3 class="text-lg font-bold text-slate-900 dark:text-white">El catálogo está vacío</h3>
-              <p class="text-slate-500 dark:text-slate-400 mt-1 max-w-sm">No hay ítems disponibles para explorar.</p>
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+      @if (hayMasPaginas()) {
+        <div class="flex justify-center mt-10">
+          <button (click)="paginaActual = paginaActual + 1; buscar(false)"
+                  class="flex items-center gap-2 px-8 py-3 rounded-full ring-1 ring-zinc-700 text-zinc-300 font-semibold text-sm hover:bg-white/5 hover:ring-zinc-500 transition-all">
+            Cargar más
+          </button>
+        </div>
+      }
+    }
+  </section>
 </div>

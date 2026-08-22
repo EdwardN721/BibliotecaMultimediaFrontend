@@ -14,11 +14,13 @@ export class AuthService {
   private userState = signal<UserState>({
     isAuthenticated: false,
     role: null,
+    nombre: null,
   });
 
   public isAuthenticated = computed(() => this.userState().isAuthenticated);
   public isAdmin = computed(() => this.userState().role === 'Admin');
   public isRegularUser = computed(() => this.userState().role === 'User');
+  public nombreUsuario = computed(() => this.userState().nombre);
 
   constructor(private http: HttpClient) {
     this.checkInitialState();
@@ -51,6 +53,7 @@ export class AuthService {
     this.userState.set({
       isAuthenticated: false,
       role: null,
+      nombre: null,
     });
   }
 
@@ -64,16 +67,21 @@ export class AuthService {
   private decodeAndSetUser(token: string){
     try{
       const decodedToken: any = jwtDecode(token);
-      
+
       // ASP.NET puede devolver un string (si hay 1 rol) o un array (si hay varios)
       const roles = decodedToken.role || [];
 
       // Si el rol es un arreglo y contiene 'Admin', o si el string exacto es 'Admin'
       const isUserAdmin = Array.isArray(roles) ? roles.includes('Admin') : roles === 'Admin';
 
+      // El nombre viene en el claim Name; con el mapeo por defecto de ASP.NET
+      // viaja como 'unique_name' (fallback a 'name')
+      const nombre: string | null = decodedToken.unique_name ?? decodedToken.name ?? null;
+
       this.userState.set({
         isAuthenticated: true,
         role: isUserAdmin ? 'Admin' : 'User',
+        nombre,
       });
     } catch (error) {
       console.log('Error al decodificar el token', error);

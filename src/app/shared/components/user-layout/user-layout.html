@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-[#141414] text-white font-sans">
+
+  <header
+    class="fixed top-0 inset-x-0 z-50 transition-colors duration-500 h-16 flex items-center justify-between px-4 sm:px-8"
+    [ngClass]="isScrolled() ? 'bg-[#141414] shadow-lg shadow-black/40' : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent'">
+
+    <div class="flex items-center space-x-6 sm:space-x-10">
+      <a routerLink="/user" class="text-2xl font-black tracking-widest text-red-600 select-none">
+        STREAM<span class="text-white">BOX</span>
+      </a>
+
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <a routerLink="/user" routerLinkActive="text-white font-bold"
+           [routerLinkActiveOptions]="{ exact: true }"
+           class="text-zinc-400 hover:text-zinc-200 transition-colors">Inicio</a>
+        <a routerLink="/user/explorar" routerLinkActive="text-white font-bold"
+           class="text-zinc-400 hover:text-zinc-200 transition-colors">Explorar</a>
+        @if (authService.isAdmin()) {
+          <a routerLink="/admin" class="text-zinc-500 hover:text-zinc-300 transition-colors border-l border-zinc-700 pl-6">Panel Admin</a>
+        }
+      </nav>
+    </div>
+
+    <div class="flex items-center space-x-3 sm:space-x-4">
+      @if (authService.nombreUsuario()) {
+        <span class="hidden lg:inline text-sm text-zinc-400">
+          Hola, <span class="text-zinc-100 font-semibold">{{ authService.nombreUsuario() }}</span>
+        </span>
+      }
+
+      <button (click)="logout()"
+              class="flex items-center space-x-2 group pl-1 pr-2 py-1 rounded-full hover:bg-white/10 transition-colors">
+        <span class="w-8 h-8 rounded-md bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-sm font-black uppercase">
+          {{ inicialAvatar }}
+        </span>
+        <i class="pi pi-sign-out text-xs text-zinc-400 group-hover:text-white transition-colors"></i>
+      </button>
+
+      <button class="md:hidden p-2 text-zinc-300" (click)="isMobileMenuOpen.set(!isMobileMenuOpen())">
+        <i class="pi text-xl" [ngClass]="isMobileMenuOpen() ? 'pi-times' : 'pi-bars'"></i>
+      </button>
+    </div>
+  </header>
+
+  @if (isMobileMenuOpen()) {
+    <div class="fixed inset-x-0 top-16 z-50 bg-[#141414]/95 backdrop-blur-md border-b border-zinc-800 md:hidden animate-fadein">
+      <nav class="flex flex-col py-4 text-sm font-medium">
+        <a routerLink="/user" routerLinkActive="text-white bg-white/5" [routerLinkActiveOptions]="{ exact: true }"
+           (click)="isMobileMenuOpen.set(false)"
+           class="px-6 py-3 text-zinc-400 hover:text-white transition-colors">Inicio</a>
+        <a routerLink="/user/explorar" routerLinkActive="text-white bg-white/5"
+           (click)="isMobileMenuOpen.set(false)"
+           class="px-6 py-3 text-zinc-400 hover:text-white transition-colors">Explorar</a>
+        @if (authService.isAdmin()) {
+          <a routerLink="/admin" (click)="isMobileMenuOpen.set(false)"
+             class="px-6 py-3 text-zinc-500 hover:text-white transition-colors border-t border-zinc-800 mt-2 pt-4">Panel Admin</a>
+        }
+      </nav>
+    </div>
+  }
+
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="border-t border-zinc-900 mt-12 py-8 text-center text-xs text-zinc-600">
+    STREAMBOX · Tu biblioteca multimedia personal
+  </footer>
+</div>
+
+<p-toast position="top-right" />
+<p-confirmDialog
+  [style]="{ width: '28rem', padding: '1.2rem' }"
+  [breakpoints]="{ '640px': '90vw' }"
+  maskStyleClass="backdrop-blur-sm bg-black/70">
+</p-confirmDialog>

@@ -66,15 +66,21 @@ export const routes: Routes = [
   {
     path: 'user',
     canActivate: [userGuard],
-    loadComponent: () => import('@shared/components/layout/layout').then((m) => m.LayoutComponent),
+    loadComponent: () =>
+      import('@shared/components/user-layout/user-layout').then((m) => m.UserLayoutComponent),
     children: [
       {
         path: '',
-        loadComponent: () => import('@features/user/dashboard/dashboard').then((m) => m.Dashboard),
+        loadComponent: () => import('@features/user/inicio/inicio').then((m) => m.Inicio),
       },
       {
         path: 'explorar',
         loadComponent: () => import('@features/user/explorar/explorar').then((m) => m.Explorar),
+      },
+      {
+        path: 'titulo/:id',
+        loadComponent: () =>
+          import('@features/user/detalle-titulo/detalle-titulo').then((m) => m.DetalleTitulo),
       },
     ]
   },

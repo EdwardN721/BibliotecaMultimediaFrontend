@@ -1,0 +1,50 @@
+<section class="relative group/row mb-2">
+  <div class="flex items-baseline justify-between px-4 sm:px-10 mb-3">
+    <h2 class="text-base sm:text-lg font-bold text-zinc-100 tracking-wide">{{ titulo() }}</h2>
+    @if (verTodoLink(); as link) {
+      <a [routerLink]="link" class="text-xs font-semibold text-red-500 hover:text-red-400 transition-colors">
+        Ver todo <i class="pi pi-chevron-right text-[10px]"></i>
+      </a>
+    }
+  </div>
+
+  <div class="relative">
+    @if (puedeIzquierda()) {
+      <button (click)="scroll(-1)"
+              class="hidden md:flex absolute left-1 top-1/2 -translate-y-1/2 z-40 w-10 h-24 items-center justify-center
+                     bg-black/60 hover:bg-black/85 rounded-lg text-white opacity-0 group-hover/row:opacity-100 transition-all">
+        <i class="pi pi-chevron-left text-xl"></i>
+      </button>
+    }
+
+    <div #contenedor (scroll)="onScrollContenedor()"
+         class="flex gap-2.5 sm:gap-3 overflow-x-auto scrollbar-none scroll-smooth
+                px-4 sm:px-10 py-6">
+
+      @if (cargando()) {
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+          <div class="w-[130px] sm:w-[160px] lg:w-[185px] shrink-0">
+            <app-skeleton-card />
+          </div>
+        }
+      } @else {
+        @for (item of items(); track item.id) {
+          <div class="w-[130px] sm:w-[160px] lg:w-[185px] shrink-0">
+            <app-poster-card [item]="item" [mostrarAgregar]="mostrarAgregar()"
+                             (abrir)="abrir.emit($event)"
+                             (agregar)="agregar.emit($event)"
+                             (toggleFavorito)="toggleFavorito.emit($event)" />
+          </div>
+        }
+      }
+    </div>
+
+    @if (puedeDerecha()) {
+      <button (click)="scroll(1)"
+              class="hidden md:flex absolute right-1 top-1/2 -translate-y-1/2 z-40 w-10 h-24 items-center justify-center
+                     bg-black/60 hover:bg-black/85 rounded-lg text-white opacity-0 group-hover/row:opacity-100 transition-all">
+        <i class="pi pi-chevron-right text-xl"></i>
+      </button>
+    }
+  </div>
+</section>

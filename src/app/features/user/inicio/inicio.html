@@ -1,0 +1,146 @@
+<!-- ===== HERO ===== -->
+@if (hero(); as destacado) {
+  <section class="relative h-[62vh] min-h-[420px] w-full">
+    <div class="absolute inset-0">
+      @if (destacado.mainImageUrl) {
+        <img [src]="destacado.mainImageUrl" [alt]="destacado.title"
+             class="w-full h-full object-cover object-top" />
+      } @else {
+        <div class="w-full h-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black"></div>
+      }
+    </div>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#141414] via-black/40 to-transparent"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/30 to-transparent"></div>
+
+    <div class="relative z-10 h-full flex flex-col justify-end px-4 sm:px-10 pb-16 max-w-3xl">
+      <span class="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-red-500 uppercase mb-3">
+        <i class="pi pi-bolt"></i> Novedad del catálogo
+      </span>
+
+      <h1 class="text-3xl sm:text-5xl font-black text-white drop-shadow-lg leading-tight">
+        {{ destacado.title }}
+      </h1>
+
+      <div class="flex flex-wrap items-center gap-3 mt-3 text-sm text-zinc-300">
+        @if (destacado.rating) {
+          <span class="flex items-center gap-1 text-emerald-400 font-semibold">
+            <i class="pi pi-star-fill text-xs"></i> {{ destacado.rating }}
+          </span>
+        }
+        <span>{{ destacado.mediaType }}</span>
+        <span class="text-zinc-600">|</span>
+        <span>{{ destacado.format }}</span>
+        @if (destacado.releaseDate) {
+          <span class="text-zinc-600">|</span>
+          <span>{{ destacado.releaseDate | date : 'yyyy' }}</span>
+        }
+        @if (destacado.platform) {
+          <span class="text-zinc-600">|</span>
+          <span>{{ destacado.platform }}</span>
+        }
+      </div>
+
+      @if (destacado.descripcion) {
+        <p class="hidden sm:block mt-4 text-sm sm:text-base text-zinc-300 leading-relaxed line-clamp-3 drop-shadow">
+          {{ destacado.descripcion }}
+        </p>
+      }
+
+      <div class="flex items-center gap-3 mt-6">
+        <a [routerLink]="['/user/titulo', destacado.id]"
+           class="flex items-center gap-2 px-6 py-2.5 rounded-md bg-white text-black font-bold text-sm hover:bg-zinc-200 transition-colors">
+          <i class="pi pi-info-circle"></i> Más información
+        </a>
+
+        @if (enBibliotecaIds().has(destacado.id)) {
+          <span class="flex items-center gap-2 px-6 py-2.5 rounded-md border border-zinc-600 text-zinc-300 font-semibold text-sm cursor-default">
+            <i class="pi pi-check text-emerald-400"></i> En tu biblioteca
+          </span>
+        } @else {
+          <button (click)="agregarAlHero()"
+                  class="flex items-center gap-2 px-6 py-2.5 rounded-md border border-zinc-500 bg-black/50 backdrop-blur text-white font-bold text-sm hover:border-white transition-colors disabled:opacity-50"
+                  [disabled]="estaAgregando(destacado.id)">
+            @if (estaAgregando(destacado.id)) {
+              <i class="pi pi-spin pi-spinner"></i>
+            } @else {
+              <i class="pi pi-plus"></i>
+            }
+            Mi lista
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+} @else {
+  <section class="pt-28 px-4 sm:px-10">
+    @if (!cargandoDestacados()) {
+      <div class="rounded-xl border border-zinc-800 bg-zinc-900/60 p-10 text-center">
+        <i class="pi pi-video text-4xl text-zinc-700 mb-4"></i>
+        <p class="text-lg font-bold text-zinc-300">El catálogo está vacío por ahora</p>
+        <p class="text-sm text-zinc-500 mt-1">Cuando un administrador agregue títulos aparecerán aquí.</p>
+      </div>
+    }
+  </section>
+}
+
+<div class="-mt-10 relative z-10">
+
+  <!-- Saludo + Mini stats -->
+  <div class="px-4 sm:px-10 pt-12 mb-2 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-5">
+    <h2 class="text-xl sm:text-2xl font-black text-white">{{ saludo() }} 👋</h2>
+
+    @if (stats(); as s) {
+      <div class="grid grid-cols-4 gap-2 sm:gap-3">
+        <div class="rounded-lg bg-zinc-900/80 ring-1 ring-white/5 px-3 sm:px-5 py-2.5 text-center min-w-[72px]">
+          <p class="text-lg sm:text-2xl font-black text-amber-400">{{ s.pendientes }}</p>
+          <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">Pendientes</p>
+        </div>
+        <div class="rounded-lg bg-zinc-900/80 ring-1 ring-white/5 px-3 sm:px-5 py-2.5 text-center min-w-[72px]">
+          <p class="text-lg sm:text-2xl font-black text-blue-400">{{ s.enProgreso }}</p>
+          <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">En progreso</p>
+        </div>
+        <div class="rounded-lg bg-zinc-900/80 ring-1 ring-white/5 px-3 sm:px-5 py-2.5 text-center min-w-[72px]">
+          <p class="text-lg sm:text-2xl font-black text-emerald-400">{{ s.completados }}</p>
+          <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">Completados</p>
+        </div>
+        <div class="rounded-lg bg-zinc-900/80 ring-1 ring-white/5 px-3 sm:px-5 py-2.5 text-center min-w-[72px]">
+          <p class="text-lg sm:text-2xl font-black text-red-400">{{ s.favoritos }}</p>
+          <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">Favoritos</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Filas de mi biblioteca -->
+  @if (!cargandoBiblioteca() && biblioteca().length === 0) {
+    <div class="mx-4 sm:mx-10 my-8 rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-900 to-zinc-950 p-8 text-center">
+      <i class="pi pi-bookmark text-4xl text-red-600/70 mb-4"></i>
+      <p class="text-lg font-bold text-zinc-200">Tu biblioteca está vacía</p>
+      <p class="text-sm text-zinc-500 mt-1 mb-5">
+        Explora el catálogo y agrega tu primer título para empezar tu colección.
+      </p>
+      <a routerLink="/user/explorar"
+         class="inline-flex items-center gap-2 px-6 py-2.5 rounded-md bg-red-600 hover:bg-red-500 text-white font-bold text-sm transition-colors">
+        <i class="pi pi-compass"></i> Explorar catálogo
+      </a>
+    </div>
+  }
+
+  <app-content-row titulo="Continuar" [items]="filaContinuar()" [cargando]="cargandoBiblioteca()"
+                   (toggleFavorito)="toggleFavoritoDesdeFila($event)" />
+
+  <app-content-row titulo="Pendientes" [items]="filaPendientes()" [cargando]="cargandoBiblioteca()"
+                   (toggleFavorito)="toggleFavoritoDesdeFila($event)" />
+
+  <!-- Novedades del catálogo -->
+  <app-content-row titulo="Novedades" [items]="filaNovedades()" [cargando]="cargandoDestacados()"
+                   [mostrarAgregar]="true" verTodoLink="/user/explorar"
+                   (agregar)="agregarDesdeFila($event)" />
+
+  <!-- Catálogo por tipo de medio -->
+  @for (fila of filasCatalogo(); track fila.titulo) {
+    <app-content-row [titulo]="fila.titulo" [items]="fila.items" [mostrarAgregar]="true"
+                     verTodoLink="/user/explorar"
+                     (agregar)="agregarDesdeFila($event)" />
+  }
+</div>

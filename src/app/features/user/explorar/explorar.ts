@@ -1,21 +1,30 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
+import { FormsModule } from '@angular/forms';
 
 import { ItemService } from '@core/services/items/item.service';
 import { BibliotecaService } from '@core/services/biblioteca/biblioteca.service';
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { TipoMediosService } from '@core/services/catalogos/tipo-medios/tipo-medios.service';
+import { GenerosService } from '@core/services/catalogos/generos/generos.service';
+import { PlataformasService } from '@core/services/catalogos/plataformas/plataformas.service';
 import { ItemDto } from '@core/models/item.model';
-import { ConsumptionStatus, PeticionAgregarABibliotecaDto } from '@core/models/biblioteca.model';
+import { TipoMedioDto } from '@core/models/tipo.medios.model';
+import { GeneroDto } from '@core/models/generos.model';
+import { PlataformaDto } from '@core/models/plataformas.model';
+import {
+  ConsumptionStatus,
+  PeticionAgregarABibliotecaDto,
+  RespuestaUserItemDto,
+} from '@core/models/biblioteca.model';
+import { PosterCardItem } from '@shared/components/user/poster-card/poster-card';
+import { PosterCard } from '@shared/components/user/poster-card/poster-card';
+import { SkeletonCard } from '@shared/components/user/skeleton-card/skeleton-card';
 
 @Component({
   selector: 'app-explorar',
   standalone: true,
-  imports: [CommonModule, RouterModule, TableModule, ButtonModule, TooltipModule],
+  imports: [CommonModule, FormsModule, PosterCard, SkeletonCard],
   templateUrl: './explorar.html',
   styleUrl: './explorar.css',
 })
@@ -23,71 +32,191 @@ export class Explorar implements OnInit {
   private itemService: ItemService = inject(ItemService);
   private bibliotecaService: BibliotecaService = inject(BibliotecaService);
   private notificacion: NotificacionService = inject(NotificacionService);
+  private tipoMediosService: TipoMediosService = inject(TipoMediosService);
+  private generosService: GenerosService = inject(GenerosService);
+  private plataformasService: PlataformasService = inject(PlataformasService);
 
-  items: WritableSignal<ItemDto[]> = signal<ItemDto[]>([]);
+  tarjetas: WritableSignal<PosterCardItem[]> = signal([]);
   isLoading: WritableSignal<boolean> = signal(true);
   agregandoIds: WritableSignal<Set<string>> = signal<Set<string>>(new Set());
 
+  tiposMedio: WritableSignal<TipoMedioDto[]> = signal([]);
+  generos: WritableSignal<GeneroDto[]> = signal([]);
+  plataformas: WritableSignal<PlataformaDto[]> = signal([]);
+
+  terminoBusqueda: string = '';
+  tipoSeleccionado: string = '';
+  generoSeleccionado: string = '';
+  plataformaSeleccionada: string = '';
+
+  paginaActual: number = 1;
+  readonly pageSize = 24;
+  hayMasPaginas: WritableSignal<boolean> = signal(false);
+
   ngOnInit() {
-    this.cargarCatalogo();
+    this.cargarFiltros();
+    this.buscar(true);
+    this.cargarBiblioteca();
   }
 
-  cargarCatalogo() {
-    this.isLoading.set(true);
-    const filtroVacio = { terminoBusqueda: '', ordenadoPor: '', ordenDescendente: true };
+  cargarFiltros() {
+    const filtroVacio = { terminoBusqueda: '', ordenadoPor: '', ordenDescendente: false };
 
-    this.itemService.obtenerItems(filtroVacio, 1, 60).subscribe({
+    this.tipoMediosService.obtenerTipoMedios(filtroVacio, 1, 50).subscribe({
+      next: (r) => this.tiposMedio.set(r.registros),
+      error: () => {},
+    });
+    this.generosService.obtenerGeneros(filtroVacio, 1, 100).subscribe({
+      next: (r) => this.generos.set(r.registros),
+      error: () => {},
+    });
+    this.plataformasService.obtenerPlataformas(filtroVacio, 1, 100).subscribe({
+      next: (r) => this.plataformas.set(r.registros),
+      error: () => {},
+    });
+  }
+
+  biblioteca: RespuestaUserItemDto[] = [];
+
+  cargarBiblioteca() {
+    this.bibliotecaService.obtenerBiblioteca({}, 1, 200).subscribe({
       next: (respuesta) => {
-        this.items.set(respuesta.registros);
-        this.isLoading.set(false);
+        this.biblioteca = respuesta.registros;
+        this.marcarEnBiblioteca();
       },
-      error: (err) => {
-        console.error('Error al cargar el catálogo:', err);
+      error: () => {},
+    });
+  }
+
+  marcarEnBiblioteca() {
+    const ids = new Set(this.biblioteca.map((b) => b.itemId));
+    const favoritos = new Map(this.biblioteca.map((b) => [b.itemId, b]));
+    this.tarjetas.update((lista) =>
+      lista.map((t) => ({
+        ...t,
+        enBiblioteca: ids.has(t.id),
+        userItemId: favoritos.get(t.id)?.id,
+        isFavorite: favoritos.get(t.id)?.isFavorite,
+      })),
+    );
+  }
+
+  buscar(resetear: boolean) {
+    if (resetear) {
+      this.paginaActual = 1;
+      this.isLoading.set(true);
+    }
+
+    const filtro = {
+      terminoBusqueda: this.terminoBusqueda.trim(),
+      ordenadoPor: '',
+      ordenDescendente: true,
+      mediaTypeId: this.tipoSeleccionado || undefined,
+      genreId: this.generoSeleccionado || undefined,
+      platformId: this.plataformaSeleccionada || undefined,
+    };
+
+    this.itemService.obtenerItems(filtro, this.paginaActual, this.pageSize).subscribe({
+      next: (respuesta) => {
+        const nuevas = respuesta.registros.map((item) => this.mapear(item));
+        this.tarjetas.update((actuales) =>
+          resetear ? nuevas : [...actuales, ...nuevas],
+        );
+        this.hayMasPaginas.set(respuesta.metadata.hasNextPage);
+        this.isLoading.set(false);
+        this.marcarEnBiblioteca();
+      },
+      error: () => {
         this.notificacion.error('Error al cargar', 'No se pudo recuperar el catálogo.');
-        this.items.set([]);
+        this.tarjetas.set([]);
         this.isLoading.set(false);
       },
     });
   }
 
-  agregarABiblioteca(item: ItemDto) {
+  mapear(item: ItemDto): PosterCardItem {
+    return {
+      id: item.id,
+      titulo: item.title,
+      imageUrl: item.mainImageUrl,
+      subtitulo: [
+        item.mediaType,
+        item.format,
+        item.releaseDate ? new Date(item.releaseDate).getFullYear() : null,
+        item.platform,
+      ]
+        .filter(Boolean)
+        .join(' • '),
+      descripcion: item.descripcion,
+      ratingCatalogo: item.rating ?? undefined,
+    };
+  }
+
+  limpiarFiltros() {
+    this.terminoBusqueda = '';
+    this.tipoSeleccionado = '';
+    this.generoSeleccionado = '';
+    this.plataformaSeleccionada = '';
+    this.buscar(true);
+  }
+
+  hayFiltrosActivos(): boolean {
+    return !!(
+      this.terminoBusqueda.trim() ||
+      this.tipoSeleccionado ||
+      this.generoSeleccionado ||
+      this.plataformaSeleccionada
+    );
+  }
+
+  agregarDesdeTarjeta(tarjeta: PosterCardItem) {
     const dto: PeticionAgregarABibliotecaDto = {
-      itemId: item.id,
+      itemId: tarjeta.id,
       status: ConsumptionStatus.Pendiente,
       isFavorite: false,
       isPrivate: false,
     };
 
-    this.agregandoIds.update((set) => {
-      const nuevo = new Set(set);
-      nuevo.add(item.id);
-      return nuevo;
-    });
+    this.agregandoIds.update((set) => new Set(set).add(tarjeta.id));
 
     this.bibliotecaService.agregarABiblioteca(dto).subscribe({
-      next: () => {
+      next: (creado) => {
         this.agregandoIds.update((set) => {
           const nuevo = new Set(set);
-          nuevo.delete(item.id);
+          nuevo.delete(tarjeta.id);
           return nuevo;
         });
-        this.notificacion.exito('Agregado', `"${item.title}" se añadió a tu biblioteca.`);
+        this.biblioteca.push(creado);
+        this.marcarEnBiblioteca();
+        this.notificacion.exito('Agregado', `"${tarjeta.titulo}" se añadió a tu biblioteca.`);
       },
       error: (err) => {
         this.agregandoIds.update((set) => {
           const nuevo = new Set(set);
-          nuevo.delete(item.id);
+          nuevo.delete(tarjeta.id);
           return nuevo;
         });
         this.notificacion.error(
           'No se pudo agregar',
-          err.error?.detail ?? 'Verifica tu conexión o si el ítem ya está en tu biblioteca.',
+          err.error?.detail ?? 'Verifica tu conexión o si el título ya está en tu biblioteca.',
         );
       },
     });
   }
 
-  estaAgregando(id: string): boolean {
-    return this.agregandoIds().has(id);
+  toggleFavoritoDesdeTarjeta(tarjeta: PosterCardItem) {
+    if (!tarjeta.userItemId) return;
+
+    const nuevo = !tarjeta.isFavorite;
+    this.bibliotecaService.marcarFavorito(tarjeta.userItemId, nuevo).subscribe({
+      next: () => {
+        const registro = this.biblioteca.find((b) => b.itemId === tarjeta.id);
+        if (registro) registro.isFavorite = nuevo;
+        this.marcarEnBiblioteca();
+      },
+      error: () => {
+        this.notificacion.error('Error', 'No se pudo actualizar el favorito.');
+      },
+    });
   }
 }

@@ -11,6 +11,7 @@ import {
   RespuestaPaginada,
   RespuestaUserItemDto,
 } from '@core/models/biblioteca.model';
+import { BibliotecaStats } from '@core/models/biblioteca-stats.model';
 
 @Injectable({
   providedIn: 'root',
@@ -55,6 +56,10 @@ export class BibliotecaService {
           metadata: this.leerMetadata(respuesta),
         })),
       );
+  }
+
+  obtenerStats(): Observable<BibliotecaStats> {
+    return this.http.get<BibliotecaStats>(`${this.apiUrl}/stats`);
   }
 
   obtenerItemDeBiblioteca(id: string): Observable<RespuestaUserItemDto> {

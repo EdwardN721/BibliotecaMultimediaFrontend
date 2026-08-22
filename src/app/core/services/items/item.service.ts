@@ -32,6 +32,11 @@ export class ItemService {
       );
   }
 
+  obtenerDestacados(cantidad: number = 12): Observable<ItemDto[]> {
+    const params: HttpParams = new HttpParams().set('cantidad', cantidad);
+    return this.http.get<ItemDto[]>(`${this.apiUrl}/destacados`, { params });
+  }
+
   obtenerItemPorId(id: string): Observable<ItemDto> {
     return this.http.get<ItemDto>(`${this.apiUrl}/${id}`);
   }

@@ -6,10 +6,9 @@ export const userGuard: CanActivateFn = (route, state) => {
   const authService: AuthService = inject(AuthService);
   const router: Router = inject(Router);
 
-  if (authService.isAuthenticated() && authService.isRegularUser()){
+  if (authService.isAuthenticated()) {
     return true;
   }
 
-  return router.parseUrl('/login')
+  return router.parseUrl('/login');
 };
-

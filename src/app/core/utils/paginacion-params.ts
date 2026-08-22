@@ -22,5 +22,17 @@ export function buildPaginationParams(
     params = params.set('OrdenDescendente', filtro.ordenDescendente);
   }
 
+  if (filtro.mediaTypeId) {
+    params = params.set('MediaTypeId', filtro.mediaTypeId);
+  }
+
+  if (filtro.genreId) {
+    params = params.set('GenreId', filtro.genreId);
+  }
+
+  if (filtro.platformId) {
+    params = params.set('PlatformId', filtro.platformId);
+  }
+
   return params;
 }

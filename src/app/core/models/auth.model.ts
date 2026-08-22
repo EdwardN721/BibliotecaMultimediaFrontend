@@ -22,12 +22,13 @@ export interface RegistroDto {
     phoneNumber?: string;
 }
 
-export interface UserState{
+export interface UserState {
     isAuthenticated: boolean;
     role: 'Admin' | 'User' | null;
+    nombre: string | null;
 }
 
-export interface LoginDto{
+export interface LoginDto {
     email: string;
     password: string;
 }
