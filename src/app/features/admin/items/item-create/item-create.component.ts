@@ -86,8 +86,8 @@ export class ItemCreateComponent implements OnInit {
       isFavorite: [false],
       isbnOrUpc: [''],
       mediaTypeId: [null, Validators.required],
-      formatId: [null, Validators.required],
-      platformId: [null],
+      formatIds: [[], Validators.required],
+      platformIds: [[]],
       genreIds: [[], Validators.required],
       creatorIds: [[]],
     });
@@ -133,12 +133,16 @@ export class ItemCreateComponent implements OnInit {
     const peticion = this.itemForm.value;
 
     this.itemService.crearItem(peticion).subscribe({
-      next: () => {
+      next: (itemCreado) => {
         this.notificacion.exito(
           'Registro Exitoso',
           `La obra "${peticion.title}" se guardó en el catálogo.`,
         );
-        this.router.navigate(['/admin/items']);
+        // Las imágenes necesitan un itemId ya creado: llevamos al usuario
+        // directo a la sección de imágenes del formulario de edición.
+        this.router.navigate(['/admin/items/editar', itemCreado.id], {
+          queryParams: { seccion: 'imagenes' },
+        });
       },
       error: (err) => {
         console.error('Error: ', err);

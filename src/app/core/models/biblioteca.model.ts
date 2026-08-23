@@ -17,8 +17,8 @@ export interface RespuestaUserItemDto {
   itemId: string;
   titulo: string;
   mediaType: string;
-  format: string;
-  platform?: string;
+  formats: string[];
+  platforms: string[];
   genres: string[];
   creators: string[];
   imageUrl?: string;

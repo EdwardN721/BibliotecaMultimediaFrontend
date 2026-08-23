@@ -56,15 +56,18 @@
             <span class="text-zinc-700">•</span>
           }
           <span>{{ it.mediaType }}</span>
-          <span class="text-zinc-700">•</span>
-          <span>{{ it.format }}</span>
+          @for (formato of it.formats; track formato) {
+            <span class="text-zinc-700">•</span>
+            <span>{{ formato }}</span>
+          }
           @if (anio(); as a) {
             <span class="text-zinc-700">•</span>
             <span>{{ a }}</span>
           }
-          @if (it.platform) {
-            <span class="text-zinc-700">•</span>
-            <span>{{ it.platform }}</span>
+          @for (plataforma of it.platforms; track plataforma) {
+            <span class="px-3 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 ring-1 ring-emerald-400/20 text-emerald-300">
+              {{ plataforma }}
+            </span>
           }
         </div>
 

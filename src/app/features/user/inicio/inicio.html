@@ -28,15 +28,17 @@
           </span>
         }
         <span>{{ destacado.mediaType }}</span>
-        <span class="text-zinc-600">|</span>
-        <span>{{ destacado.format }}</span>
+        @for (formato of destacado.formats.slice(0, 2); track formato) {
+          <span class="text-zinc-600">|</span>
+          <span>{{ formato }}</span>
+        }
         @if (destacado.releaseDate) {
           <span class="text-zinc-600">|</span>
           <span>{{ destacado.releaseDate | date : 'yyyy' }}</span>
         }
-        @if (destacado.platform) {
+        @for (plataforma of destacado.platforms.slice(0, 2); track plataforma) {
           <span class="text-zinc-600">|</span>
-          <span>{{ destacado.platform }}</span>
+          <span>{{ plataforma }}</span>
         }
       </div>
 

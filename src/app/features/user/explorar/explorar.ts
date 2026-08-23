@@ -141,9 +141,9 @@ export class Explorar implements OnInit {
       imageUrl: item.mainImageUrl,
       subtitulo: [
         item.mediaType,
-        item.format,
+        ...item.formats.slice(0, 2),
         item.releaseDate ? new Date(item.releaseDate).getFullYear() : null,
-        item.platform,
+        item.platforms.slice(0, 2).join(' / '),
       ]
         .filter(Boolean)
         .join(' • '),

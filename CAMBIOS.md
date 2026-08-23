@@ -155,15 +155,54 @@ Stats falsas hardcodeadas → **datos reales**:
 
 ---
 
+# 🧩 CAMBIOS v2 — Multi-formato / Multi-plataforma y Gestión de Imágenes
+
+> **Fecha:** 22 de agosto de 2026 · Rama `feature/multi-plataforma-imagenes` (ambos repos)
+
+## 🎯 Objetivo
+
+Un ítem ya no pertenece a un único formato/plataforma: un videojuego puede estar en **PS5 + Xbox + PC**, y una obra puede existir en formato **Físico + Digital** simultáneamente. Además, la subida de imágenes (chunked) ahora es visible y gestionable desde el panel admin.
+
+## 🗄️ Backend
+
+- **Nuevas tablas puente N:M** (patrón `ItemGenre`): `item_formats` e `item_platforms`, con índice único compuesto `(ItemId, FormatId/PlatformId)` y cascade delete.
+- **Migración** `MultiFormatosYPlataformasPorItem`: elimina las columnas `items.FormatId` y `items.PlatformId` (**empezar limpio**: no se migran datos previos).
+- **Contrato API (cambio limpio):**
+  - `PeticionCrearItemDto` / `PeticionActualizarItemDto`: `formatIds[]` (≥1 requerido) y `platformIds[]`.
+  - `RespuestaItemDto`: `formats[]`, `platforms[]`, `formatIds[]`, `platformIds[]`.
+  - `RespuestaUserItemDto`: `formats[]`, `platforms[]`.
+- `ItemService`: validación de listas de referencias (helper común), sincronización N:M en update, filtro `PlatformId` del paginado resuelto vía `ItemPlatforms.Any(...)` (Explorar sigue funcionando).
+- **Rating unificado 1–5** en validadores de `Item` (antes el form admin aceptaba 0–10 mientras el usuario veía estrellas /5).
+
+### Endpoints de imágenes nuevos
+
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| GET | `/api/v1/ItemImages/item/{itemId}` | Autenticado | Lista imágenes del ítem (principal primero) |
+| DELETE | `/api/v1/ItemImages/{id}` | Admin | Borra blob en Azure + registro |
+| PUT | `/api/v1/ItemImages/{id}/principal` | Admin | Marca principal (desmarca las demás del ítem) |
+
+`IBlobStorageService` gana `EliminarArchivoAsync(blobName)` (`DeleteIfExistsAsync`). La reconstrucción del blob name se hace desde la URL pública (`.../{contenedor}/items/{itemId}/images/{archivo}`).
+
+## 🎨 Frontend
+
+- **Formularios admin** (crear/editar): `p-multiSelect` para **Formatos** (requerido) y **Plataformas**, con chips.
+- **Flujo crear → imágenes**: al guardar, redirige a `/admin/items/editar/:id?seccion=imagenes` con auto-scroll directo a la sección de imágenes.
+- **Nuevo componente** `SeccionImagenesComponent`: dropzone multi-archivo, subida por chunks (1 MB) con barra de progreso, grid de miniaturas 2:3, badge "Principal", acciones marcar-principal ⭐ / eliminar 🗑️ (con confirmación).
+- **Nuevo servicio** `ItemImagesService` (listar, subir chunked, eliminar, marcar principal).
+- **Chips multi en UI**: plataformas como chips esmeralda en detalle usuario; formatos/plataformas múltiples en hero, tarjetas, listado admin y dashboard.
+
+---
+
 ## 🚀 Cómo probarlo
 
-1. **Backend**: `dotnet run --project BibliotecaMultimedia.API` (puerto `5150`).
+1. **Backend**: `dotnet run --project BibliotecaMultimedia.API` (puerto `5150`) y aplicar la nueva migración EF.
 2. **Frontend**: `npm start` y abrir la URL de Angular Dev Server.
 3. Entrar con un usuario **estándar** → aterrizas en el Inicio estilo Netflix.
 4. Probar: hover en tarjetas, flechas de carrusel, agregar desde fila "Novedades", abrir detalle, cambiar estado/calificar/marcar favorito, explorar con chips de tipo.
 5. Entrar con un **admin** → panel dark pro con métricas reales; también puede visitar `/user` desde la sidebar.
+6. **v2**: crear un ítem con varios formatos/plataformas → tras guardar llegas a la sección de imágenes → sube pósters (progreso por chunks), marca una como principal y verifica que aparece en el catálogo usuario.
 
 ## 💡 Ideas futuras (fuera de alcance)
 - Preview expandida al estilo Netflix puro (tarjeta grande que tapa vecinos) — requiere medición de viewport y portales.
-- Endpoint de imágenes públicas por item para lazy galleries.
 - Recomendaciones personalizadas (géneros más consumidos).

@@ -45,8 +45,8 @@
 
           <div class="flex flex-col gap-2">
             <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Calificación <span class="text-red-500">*</span></label>
-            <p-inputNumber formControlName="rating" [min]="0" [max]="10" [minFractionDigits]="0" [maxFractionDigits]="1" styleClass="w-full" 
-                           inputStyleClass="w-full p-3 text-center font-black text-orange-600 dark:text-orange-400 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all shadow-inner" placeholder="0 - 10"></p-inputNumber>
+            <p-inputNumber formControlName="rating" [min]="1" [max]="5" [minFractionDigits]="0" [maxFractionDigits]="1" styleClass="w-full"
+                           inputStyleClass="w-full p-3 text-center font-black text-orange-600 dark:text-orange-400 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all shadow-inner" placeholder="1 - 5"></p-inputNumber>
           </div>
         </div>
 
@@ -63,14 +63,14 @@
                       placeholder="Selecciona tipo" class="w-full" styleClass="w-full" />
           </div>
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Formato <span class="text-red-500">*</span></label>
-            <p-select [options]="formatos()" optionLabel="nombre" optionValue="id" formControlName="formatId"
-                      placeholder="Selecciona formato" class="w-full" styleClass="w-full" />
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Formatos <span class="text-red-500">*</span></label>
+            <p-multiselect [options]="formatos()" optionLabel="nombre" optionValue="id" formControlName="formatIds"
+                           placeholder="Ej. Físico + Digital" display="chip" class="w-full" styleClass="w-full" />
           </div>
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Plataforma</label>
-            <p-select [options]="plataformas()" optionLabel="nombre" optionValue="id" formControlName="platformId"
-                      placeholder="Selecciona plataforma (opcional)" class="w-full" styleClass="w-full" />
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Plataformas</label>
+            <p-multiselect [options]="plataformas()" optionLabel="nombre" optionValue="id" formControlName="platformIds"
+                           placeholder="Ej. PS5, Xbox, PC..." display="chip" [filter]="true" class="w-full" styleClass="w-full" />
           </div>
         </div>
 
@@ -107,4 +107,8 @@
       </form>
     }
   </div>
+
+  @if (!isLoadingData()) {
+    <app-seccion-imagenes [itemId]="itemId" />
+  }
 </div>

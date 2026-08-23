@@ -25,6 +25,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { SeccionImagenesComponent } from '../seccion-imagenes/seccion-imagenes.component';
 
 @Component({
   selector: 'app-item-edit',
@@ -42,6 +43,7 @@ import { NotificacionService } from '@core/services/notificacion/notificacion.se
     InputIconModule,
     SelectModule,
     MultiSelectModule,
+    SeccionImagenesComponent,
   ],
   templateUrl: './item-edit.component.html',
   styleUrl: './item-edit.component.css',
@@ -73,13 +75,13 @@ export class ItemEditComponent implements OnInit {
   itemForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(150)]],
     releaseDate: [''],
-    rating: [0, [Validators.min(0), Validators.max(10)]],
+    rating: [null, [Validators.min(1), Validators.max(5)]],
     isFavorite: [false],
     descripcion: [''],
     metadata: [{}],
     mediaTypeId: [null, Validators.required],
-    formatId: [null, Validators.required],
-    platformId: [null],
+    formatIds: [[], Validators.required],
+    platformIds: [[]],
     genreIds: [[], Validators.required],
     creatorIds: [[]],
   });
@@ -100,12 +102,13 @@ export class ItemEditComponent implements OnInit {
           descripcion: item.descripcion || '',
           metadata: item.metadata || {},
           mediaTypeId: item.mediaTypeId,
-          formatId: item.formatId,
-          platformId: item.platformId ?? null,
+          formatIds: item.formatIds ?? [],
+          platformIds: item.platformIds ?? [],
           genreIds: item.genreIds ?? [],
           creatorIds: item.creatorIds ?? [],
         });
         this.isLoadingData.set(false);
+        this.enfocarSeccionImagenesSiAplica();
       },
       error: (err) => {
         console.error('Error:', err);
@@ -114,6 +117,18 @@ export class ItemEditComponent implements OnInit {
         this.router.navigate(['/admin/items']);
       },
     });
+  }
+
+  /**
+   * Cuando el flujo de creación redirige con ?seccion=imagenes,
+   * llevamos al usuario directamente a la sección de imágenes.
+   */
+  private enfocarSeccionImagenesSiAplica(): void {
+    if (this.route.snapshot.queryParamMap.get('seccion') !== 'imagenes') return;
+
+    setTimeout(() => {
+      document.getElementById('seccion-imagenes')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
   }
 
   cargarCatalogos() {
@@ -159,8 +174,8 @@ export class ItemEditComponent implements OnInit {
       descripcion: formValues.descripcion || null,
       metadata: Object.keys(formValues.metadata || {}).length ? formValues.metadata : null,
       mediaTypeId: formValues.mediaTypeId,
-      formatId: formValues.formatId,
-      platformId: formValues.platformId || null,
+      formatIds: formValues.formatIds || [],
+      platformIds: formValues.platformIds || [],
       genreIds: formValues.genreIds || [],
       creatorIds: formValues.creatorIds || [],
     };

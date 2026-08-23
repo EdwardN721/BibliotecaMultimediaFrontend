@@ -5,16 +5,16 @@ export interface ItemDto {
   releaseDate?: string;
   rating?: number;
   mediaType: string;
-  platform?: string;
-  format: string;
+  platforms: string[];
+  formats: string[];
   isbnOrUpc?: string;
   mainImageUrl?: string;
   isFavorite: boolean;
   genres: string[];
   creators: string[];
   mediaTypeId: string;
-  formatId: string;
-  platformId?: string;
+  formatIds: string[];
+  platformIds: string[];
   genreIds: string[];
   creatorIds: string[];
   createdAt: string;
@@ -31,8 +31,8 @@ export interface CrearItemDto {
   isbnOrUpc?: string;
   metadata?: Record<string, unknown>;
   mediaTypeId: string;
-  formatId: string;
-  platformId?: string;
+  formatIds: string[];
+  platformIds: string[];
   genreIds: string[];
   creatorIds: string[];
 }
@@ -46,8 +46,17 @@ export interface ActualizarItemDto {
   isbnOrUpc?: string;
   metadata?: Record<string, unknown>;
   mediaTypeId: string;
-  formatId: string;
-  platformId?: string;
+  formatIds: string[];
+  platformIds: string[];
   genreIds: string[];
   creatorIds: string[];
+}
+
+export interface ImagenItemDto {
+  id: string;
+  itemId: string;
+  imageUrl: string;
+  isPrimary: boolean;
+  createdAt: string;
+  updatedAt?: string;
 }

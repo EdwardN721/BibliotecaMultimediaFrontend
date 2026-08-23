@@ -47,7 +47,7 @@
         <tr>
           <th pSortableColumn="title" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Título <p-sortIcon field="title"></p-sortIcon></th>
           <th pSortableColumn="mediaType" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Tipo <p-sortIcon field="mediaType"></p-sortIcon></th>
-          <th pSortableColumn="platform" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Plataforma <p-sortIcon field="platform"></p-sortIcon></th>
+          <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs px-6 py-4">Formatos / Plataformas</th>
           <th pSortableColumn="rating" class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-center px-6 py-4">Calificación <p-sortIcon field="rating"></p-sortIcon></th>
           <th class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 font-bold uppercase tracking-wider text-xs text-right px-6 py-4">Acciones</th>
         </tr>
@@ -64,7 +64,7 @@
               <div>
                 <div class="font-bold text-slate-900 dark:text-white text-base">{{ item.title }}</div>
                 <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium tracking-wide">
-                  {{ item.format }} &bull; {{ item.releaseDate | date:'yyyy' }}
+                  {{ item.formats.join(', ') }} &bull; {{ item.releaseDate | date:'yyyy' }}
                 </div>
               </div>
             </div>
@@ -79,14 +79,22 @@
           </td>
 
           <td class="px-6 py-4 font-medium text-slate-700 dark:text-slate-300 text-sm">
-            {{ item.platform }}
+            @for (plataforma of item.platforms; track plataforma) {
+              <span class="inline-flex items-center px-2.5 py-1 mr-1 mb-1 rounded-full text-xs font-bold tracking-wide border
+                bg-emerald-50 text-emerald-700 border-emerald-200
+                dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800/50">
+                {{ plataforma }}
+              </span>
+            } @empty {
+              <span class="text-slate-400 dark:text-slate-600">—</span>
+            }
           </td>
 
           <td class="px-6 py-4 text-center">
             <div class="inline-flex items-center justify-center space-x-1 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
               <span class="text-amber-500 dark:text-amber-400 text-sm"><i class="pi pi-star-fill"></i></span>
               <span class="font-black text-slate-800 dark:text-slate-100">{{ item.rating }}</span>
-              <span class="text-xs text-slate-400 font-bold">/ 10</span>
+              <span class="text-xs text-slate-400 font-bold">/ 5</span>
             </div>
           </td>
 

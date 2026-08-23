@@ -134,7 +134,7 @@ export class Inicio implements OnInit {
       userItemId: b.id,
       titulo: b.titulo,
       imageUrl: b.imageUrl,
-      subtitulo: [b.mediaType, b.format].filter(Boolean).join(' • '),
+      subtitulo: [b.mediaType, ...b.formats].filter(Boolean).join(' • '),
       descripcion: undefined,
       personalRating: b.personalRating ?? undefined,
       status: b.status,
@@ -149,7 +149,7 @@ export class Inicio implements OnInit {
       id: item.id,
       titulo: item.title,
       imageUrl: item.mainImageUrl,
-      subtitulo: [item.mediaType, item.format, item.releaseDate ? new Date(item.releaseDate).getFullYear() : null]
+      subtitulo: [item.mediaType, ...item.formats.slice(0, 2), item.releaseDate ? new Date(item.releaseDate).getFullYear() : null]
         .filter(Boolean)
         .join(' • '),
       descripcion: item.descripcion,
