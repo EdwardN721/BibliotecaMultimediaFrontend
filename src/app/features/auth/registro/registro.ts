@@ -1,10 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, ValidationErrors, Validators, AbstractControl } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth/auth';
+import { ThemeService } from '@core/services/theme/theme.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ButtonModule } from 'primeng/button';
-import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 
 /** Espejo de las reglas del backend: mínimo 8 caracteres, una mayúscula y un número. */
@@ -22,7 +21,7 @@ function contrasenasCoinciden(group: AbstractControl): ValidationErrors | null {
 @Component({
   selector: 'app-registro',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ButtonModule, PasswordModule, InputTextModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, InputTextModule],
   templateUrl: './registro.html',
   styleUrl: './registro.css',
 })
@@ -30,9 +29,26 @@ export class Registro {
   private fb: FormBuilder = inject(FormBuilder);
   private authService: AuthService = inject(AuthService);
   private router: Router = inject(Router);
+  private themeService: ThemeService = inject(ThemeService);
 
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
+  showPassword = signal(false);
+
+  stats = [
+    { valor: '+120', label: 'Títulos' },
+    { valor: '5', label: 'Tipos de medio' },
+    { valor: '1 min', label: 'Para empezar' },
+  ];
+
+  constructor() {
+    // La experiencia auth es cinematográfica: siempre en oscuro
+    this.themeService.setDarkMode(true);
+  }
+
+  togglePassword(): void {
+    this.showPassword.update((v) => !v);
+  }
 
   registroForm = this.fb.nonNullable.group(
     {

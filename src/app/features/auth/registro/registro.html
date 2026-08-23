@@ -1,99 +1,229 @@
-<div class="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 transition-colors duration-300">
+<div class="auth-scene min-h-screen relative overflow-hidden flex flex-col">
 
-  <div class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-8 sm:p-10 transition-colors duration-300">
+  <!-- Ambiente: blobs de luz -->
+  <div class="blob blob-a" aria-hidden="true"></div>
+  <div class="blob blob-b" aria-hidden="true"></div>
+  <div class="grid-overlay" aria-hidden="true"></div>
 
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white mb-4 shadow-lg shadow-blue-500/30">
-        <i class="pi pi-play text-xl"></i>
-      </div>
-      <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">StreamBox</h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Crea tu cuenta para comenzar</p>
+  <!-- Mini navbar -->
+  <header class="relative z-10 flex items-center justify-between px-6 sm:px-10 py-6">
+    <a routerLink="/login" class="flex items-center gap-2.5 group">
+      <span class="w-9 h-9 flex items-center justify-center rounded-xl bg-linear-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-600/40 group-hover:scale-105 transition-transform">
+        <i class="pi pi-play text-sm pl-0.5"></i>
+      </span>
+      <span class="text-lg font-black tracking-tight text-white">Stream<span class="text-blue-400">Box</span></span>
+    </a>
+    <p class="text-sm text-zinc-400">
+      ¿Ya tienes cuenta?
+      <a routerLink="/login" class="ml-1 font-semibold text-white hover:text-blue-300 transition-colors">Inicia sesión</a>
+    </p>
+  </header>
+
+  <!-- Escenario principal -->
+  <main class="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-8 pb-10 py-4">
+    <div class="w-full max-w-5xl grid lg:grid-cols-[1.05fr_1fr] rounded-3xl overflow-hidden border border-white/10 bg-white/4 backdrop-blur-2xl shadow-2xl shadow-black/60">
+
+      <!-- Panel visual (solo desktop) -->
+      <aside class="relative hidden lg:flex flex-col justify-between p-10 xl:p-12 bg-linear-to-br from-blue-950/60 via-slate-950/80 to-indigo-950/50 border-r border-white/10">
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+          <div class="poster poster-1"><i class="pi pi-video"></i></div>
+          <div class="poster poster-2"><i class="pi pi-gamepad"></i></div>
+          <div class="poster poster-3"><i class="pi pi-book"></i></div>
+        </div>
+
+        <div class="relative">
+          <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-widest text-blue-300 bg-blue-500/10 ring-1 ring-blue-400/30">
+            <i class="pi pi-sparkles text-xs"></i> Empieza gratis
+          </span>
+          <h1 class="mt-6 text-4xl xl:text-5xl font-black leading-[1.05] tracking-tight text-white">
+            Crea tu cuenta y<br />
+            <span class="bg-linear-to-r from-blue-400 via-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">empieza tu colección</span> hoy.
+          </h1>
+          <p class="mt-4 text-sm leading-relaxed text-zinc-400 max-w-md">
+            En menos de un minuto estarás registrando películas, series,
+            videojuegos y libros con su progreso y calificación.
+          </p>
+        </div>
+
+        <!-- Features -->
+        <ul class="relative space-y-4 mt-10">
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 w-7 h-7 shrink-0 flex items-center justify-center rounded-lg bg-blue-500/15 ring-1 ring-blue-400/25 text-blue-300">
+              <i class="pi pi-user-plus text-xs"></i>
+            </span>
+            <div>
+              <p class="text-sm font-bold text-white">Tu perfil personal</p>
+              <p class="text-xs text-zinc-500">Biblioteca privada con estados y favoritos.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 w-7 h-7 shrink-0 flex items-center justify-center rounded-lg bg-indigo-500/15 ring-1 ring-indigo-400/25 text-indigo-300">
+              <i class="pi pi-star text-xs"></i>
+            </span>
+            <div>
+              <p class="text-sm font-bold text-white">Califica y comenta</p>
+              <p class="text-xs text-zinc-500">Rating de estrellas y progreso por título.</p>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="mt-0.5 w-7 h-7 shrink-0 flex items-center justify-center rounded-lg bg-fuchsia-500/15 ring-1 ring-fuchsia-400/25 text-fuchsia-300">
+              <i class="pi pi-compass text-xs"></i>
+            </span>
+            <div>
+              <p class="text-sm font-bold text-white">Descubre novedades</p>
+              <p class="text-xs text-zinc-500">Explora el catálogo con filtros inteligentes.</p>
+            </div>
+          </li>
+        </ul>
+
+        <!-- Stats decorativas -->
+        <div class="relative grid grid-cols-3 gap-3 mt-auto pt-10">
+          @for (stat of stats; track stat.label) {
+            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
+              <p class="text-xl font-black text-white">{{ stat.valor }}</p>
+              <p class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 mt-0.5">{{ stat.label }}</p>
+            </div>
+          }
+        </div>
+      </aside>
+
+      <!-- Panel formulario -->
+      <section class="relative p-8 sm:p-12 flex flex-col justify-center bg-slate-950/70">
+        <div class="max-w-sm w-full mx-auto">
+          <h2 class="text-2xl font-black tracking-tight text-white">Crear cuenta</h2>
+          <p class="text-sm text-zinc-400 mt-2">Un minuto ahora, toda una biblioteca después.</p>
+
+          <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="mt-8 space-y-4" novalidate>
+
+            <div class="space-y-2">
+              <label for="email" class="text-xs font-bold uppercase tracking-wider text-zinc-400 block">Correo electrónico</label>
+              <div class="auth-field" [class.auth-field-error]="esInvalido('email')">
+                <i class="pi pi-envelope"></i>
+                <input id="email" type="email" pInputText formControlName="email" autocomplete="email"
+                       placeholder="ejemplo@correo.com" class="w-full bg-transparent border-none shadow-none pl-9 text-white placeholder:text-zinc-600 focus:outline-none" />
+              </div>
+              @if (esInvalido('email')) {
+                <small class="text-red-400 text-xs">Ingresa un correo válido.</small>
+              }
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label for="nombre" class="text-xs font-bold uppercase tracking-wider text-zinc-400 block">Nombre</label>
+                <div class="auth-field" [class.auth-field-error]="esInvalido('nombre')">
+                  <input id="nombre" type="text" pInputText formControlName="nombre" autocomplete="given-name"
+                         placeholder="Ana" class="w-full bg-transparent border-none shadow-none text-white placeholder:text-zinc-600 focus:outline-none" />
+                </div>
+                @if (esInvalido('nombre')) {
+                  <small class="text-red-400 text-xs">Obligatorio (máx. 100).</small>
+                }
+              </div>
+              <div class="space-y-2">
+                <label for="primerApellido" class="text-xs font-bold uppercase tracking-wider text-zinc-400 block">Primer apellido</label>
+                <div class="auth-field" [class.auth-field-error]="esInvalido('primerApellido')">
+                  <input id="primerApellido" type="text" pInputText formControlName="primerApellido" autocomplete="family-name"
+                         placeholder="García" class="w-full bg-transparent border-none shadow-none text-white placeholder:text-zinc-600 focus:outline-none" />
+                </div>
+                @if (esInvalido('primerApellido')) {
+                  <small class="text-red-400 text-xs">Obligatorio (máx. 100).</small>
+                }
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-2">
+                <label for="segundoApellido" class="text-xs font-bold uppercase tracking-wider text-zinc-400 block">
+                  Segundo apellido <span class="font-medium text-zinc-600 normal-case">(opcional)</span>
+                </label>
+                <div class="auth-field">
+                  <input id="segundoApellido" type="text" pInputText formControlName="segundoApellido"
+                         placeholder="López" class="w-full bg-transparent border-none shadow-none text-white placeholder:text-zinc-600 focus:outline-none" />
+                </div>
+                @if (esInvalido('segundoApellido')) {
+                  <small class="text-red-400 text-xs">Máximo 100 caracteres.</small>
+                }
+              </div>
+              <div class="space-y-2">
+                <label for="phoneNumber" class="text-xs font-bold uppercase tracking-wider text-zinc-400 block">
+                  Teléfono <span class="font-medium text-zinc-600 normal-case">(opcional)</span>
+                </label>
+                <div class="auth-field" [class.auth-field-error]="esInvalido('phoneNumber')">
+                  <i class="pi pi-phone"></i>
+                  <input id="phoneNumber" type="tel" pInputText formControlName="phoneNumber" autocomplete="tel"
+                         maxlength="10" placeholder="5512345678" class="w-full bg-transparent border-none shadow-none pl-9 text-white placeholder:text-zinc-600 focus:outline-none" />
+                </div>
+                @if (esInvalido('phoneNumber')) {
+                  <small class="text-red-400 text-xs">Debe tener exactamente 10 dígitos.</small>
+                }
+              </div>
+            </div>
+
+            <div class="space-y-2 pt-1">
+              <label for="password" class="text-xs font-bold uppercase tracking-wider text-zinc-400 block">Contraseña</label>
+              <div class="auth-field pr-12" [class.auth-field-error]="esInvalido('password')">
+                <i class="pi pi-lock"></i>
+                <input id="password" [type]="showPassword() ? 'text' : 'password'" pInputText formControlName="password"
+                       autocomplete="new-password" placeholder="••••••••"
+                       class="w-full bg-transparent border-none shadow-none pl-9 text-white placeholder:text-zinc-600 focus:outline-none" />
+                <button type="button" (click)="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-md text-zinc-500 hover:text-white hover:bg-white/10 transition-colors"
+                        [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                  <i class="pi text-sm" [class.pi-eye]="!showPassword()" [class.pi-eye-slash]="showPassword()"></i>
+                </button>
+              </div>
+              @if (esInvalido('password')) {
+                <small class="text-red-400 text-xs">Mínimo 8 caracteres, una mayúscula y un número.</small>
+              }
+            </div>
+
+            <div class="space-y-2">
+              <label for="confirmarPassword" class="text-xs font-bold uppercase tracking-wider text-zinc-400 block">Confirmar contraseña</label>
+              <div class="auth-field pr-12" [class.auth-field-error]="contrasenasNoCoinciden || esInvalido('confirmarPassword')">
+                <i class="pi pi-lock"></i>
+                <input id="confirmarPassword" [type]="showPassword() ? 'text' : 'password'" pInputText formControlName="confirmarPassword"
+                       autocomplete="new-password" placeholder="••••••••"
+                       class="w-full bg-transparent border-none shadow-none pl-9 text-white placeholder:text-zinc-600 focus:outline-none" />
+              </div>
+              @if (contrasenasNoCoinciden) {
+                <small class="text-red-400 text-xs">Las contraseñas no coinciden.</small>
+              } @else if (esInvalido('confirmarPassword')) {
+                <small class="text-red-400 text-xs">Confirma tu contraseña.</small>
+              }
+            </div>
+
+            @if (errorMessage()) {
+              <div role="alert" class="error-shake p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-sm text-red-300 flex items-start gap-2.5">
+                <i class="pi pi-exclamation-triangle mt-0.5"></i>
+                <span>{{ errorMessage() }}</span>
+              </div>
+            }
+
+            <button type="submit" [disabled]="registroForm.invalid || isLoading()"
+                    class="group relative w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-bold text-white text-sm !mt-6
+                           bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500
+                           disabled:opacity-50 disabled:pointer-events-none
+                           shadow-lg shadow-blue-600/30 hover:shadow-indigo-500/40 hover:-translate-y-0.5
+                           transition-all duration-300">
+              @if (isLoading()) {
+                <i class="pi pi-spin pi-spinner"></i>
+                <span>Creando cuenta…</span>
+              } @else {
+                <span>Crear cuenta</span>
+                <i class="pi pi-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+              }
+            </button>
+          </form>
+
+          <p class="text-center text-sm text-zinc-500 mt-6">
+            ¿Ya tienes cuenta?
+            <a routerLink="/login" class="font-semibold text-blue-400 hover:text-blue-300 transition-colors">Inicia sesión</a>
+          </p>
+        </div>
+      </section>
+
     </div>
+  </main>
 
-    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="space-y-5">
-
-      <div class="space-y-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Correo Electrónico</label>
-        <input type="email" pInputText formControlName="email" class="w-full" placeholder="ejemplo@correo.com" />
-        @if (esInvalido('email')) {
-          @if (registroForm.controls.email.errors?.['required']) {
-            <small class="text-red-500">El correo es obligatorio.</small>
-          } @else {
-            <small class="text-red-500">Ingresa un correo válido.</small>
-          }
-        }
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Nombre</label>
-          <input type="text" pInputText formControlName="nombre" class="w-full" placeholder="Ana" />
-          @if (esInvalido('nombre')) {
-            <small class="text-red-500">El nombre es obligatorio (máx. 100).</small>
-          }
-        </div>
-        <div class="space-y-2">
-          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Primer Apellido</label>
-          <input type="text" pInputText formControlName="primerApellido" class="w-full" placeholder="García" />
-          @if (esInvalido('primerApellido')) {
-            <small class="text-red-500">El primer apellido es obligatorio (máx. 100).</small>
-          }
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="space-y-2">
-          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Segundo Apellido <span class="font-normal text-slate-400">(opcional)</span></label>
-          <input type="text" pInputText formControlName="segundoApellido" class="w-full" placeholder="López" />
-          @if (esInvalido('segundoApellido')) {
-            <small class="text-red-500">Máximo 100 caracteres.</small>
-          }
-        </div>
-        <div class="space-y-2">
-          <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Teléfono <span class="font-normal text-slate-400">(opcional)</span></label>
-          <input type="tel" pInputText formControlName="phoneNumber" class="w-full" placeholder="5512345678" maxlength="10" />
-          @if (esInvalido('phoneNumber')) {
-            <small class="text-red-500">Debe tener exactamente 10 dígitos.</small>
-          }
-        </div>
-      </div>
-
-      <div class="space-y-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Contraseña</label>
-        <p-password formControlName="password" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" placeholder="••••••••" />
-        @if (esInvalido('password')) {
-          <small class="text-red-500 block">Mínimo 8 caracteres, una mayúscula y un número.</small>
-        }
-      </div>
-
-      <div class="space-y-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300 block">Confirmar Contraseña</label>
-        <p-password formControlName="confirmarPassword" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" placeholder="••••••••" />
-        @if (contrasenasNoCoinciden) {
-          <small class="text-red-500 block">Las contraseñas no coinciden.</small>
-        } @else if (esInvalido('confirmarPassword')) {
-          <small class="text-red-500 block">Confirma tu contraseña.</small>
-        }
-      </div>
-
-      @if (errorMessage()) {
-        <div class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-sm text-red-600 dark:text-red-400 flex items-start space-x-2">
-          <i class="pi pi-exclamation-circle mt-0.5"></i>
-          <span>{{ errorMessage() }}</span>
-        </div>
-      }
-
-      <p-button type="submit" label="Crear Cuenta" icon="pi pi-user-plus"
-        [loading]="isLoading()"
-        [disabled]="registroForm.invalid || isLoading()"
-        styleClass="w-full justify-center py-3 bg-blue-600 hover:bg-blue-700 border-none rounded-xl font-semibold shadow-md shadow-blue-500/20">
-      </p-button>
-
-      <p class="text-center text-sm text-slate-500 dark:text-slate-400">
-        ¿Ya tienes cuenta?
-        <a routerLink="/login" class="font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400">Inicia sesión</a>
-      </p>
-
-    </form>
-  </div>
+  <footer class="relative z-10 pb-6 text-center">
+    <p class="text-[11px] text-zinc-700 tracking-wide">StreamBox · Tu colección, tus reglas</p>
+  </footer>
 </div>
