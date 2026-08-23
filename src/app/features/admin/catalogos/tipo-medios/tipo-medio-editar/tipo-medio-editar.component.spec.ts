@@ -1,3 +1,4 @@
+import { PROVEEDORES_TEST } from '@testing/test-bed-providers';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TipoMedioEditarComponent } from './tipo-medio-editar.component';
@@ -9,6 +10,7 @@ describe('TipoMedioEditarComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TipoMedioEditarComponent],
+      providers: PROVEEDORES_TEST,
     }).compileComponents();
 
     fixture = TestBed.createComponent(TipoMedioEditarComponent);

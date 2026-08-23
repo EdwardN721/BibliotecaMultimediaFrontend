@@ -6,7 +6,8 @@ import { buildPaginationParams } from '@core/utils/paginacion-params';
 import { environment } from '@env/environment';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { PaginacionMetadata, RespuestaPaginada } from '@core/models/paginacion.model';
+import { RespuestaPaginada } from '@core/models/paginacion.model';
+import { leerMetadataPaginada } from '@core/utils/paginacion-metadata';
 
 @Injectable({
   providedIn: 'root',
@@ -25,32 +26,9 @@ export class CreadoresService {
     return this.http.get<CreadorDto[]>(`${this.apiUrl}/paginado`, { params, observe: 'response' }).pipe(
       map((respuesta) => ({
         registros: respuesta.body ?? [],
-        metadata: this.leerMetadata(respuesta),
+        metadata: leerMetadataPaginada(respuesta),
       })),
     );
-  }
-
-  private leerMetadata(respuesta: HttpResponse<CreadorDto[]>): PaginacionMetadata {
-    const header = respuesta.headers.get('X-Pagination');
-    const porDefecto: PaginacionMetadata = {
-      paginaActual: 1,
-      totalPaginas: 0,
-      registrosPorPagina: 10,
-      totalRegistros: 0,
-      hasPreviousPage: false,
-      hasNextPage: false,
-    };
-
-    if (!header) {
-      return porDefecto;
-    }
-
-    try {
-      const metadata = JSON.parse(header) as Partial<PaginacionMetadata>;
-      return { ...porDefecto, ...metadata };
-    } catch {
-      return porDefecto;
-    }
   }
 
   obtenerCreadorPorId(id: string): Observable<CreadorDto>{

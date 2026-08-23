@@ -8,6 +8,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { routes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from '@core/interceptors/auth-interceptor';
+import { errorInterceptor } from '@core/interceptors/error-interceptor';
 import { providePrimeNG } from 'primeng/config';
 import Lara from '@primeng/themes/lara';
 import { definePreset } from '@primeng/themes';
@@ -68,7 +69,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     ConfirmationService,
     MessageService,
 

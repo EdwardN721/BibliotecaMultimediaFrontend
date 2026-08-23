@@ -5,13 +5,13 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import {
   FiltroBiblioteca,
-  PaginacionMetadata,
   PeticionActualizarUserItemDto,
   PeticionAgregarABibliotecaDto,
-  RespuestaPaginada,
   RespuestaUserItemDto,
 } from '@core/models/biblioteca.model';
+import { RespuestaPaginada } from '@core/models/paginacion.model';
 import { BibliotecaStats } from '@core/models/biblioteca-stats.model';
+import { leerMetadataPaginada } from '@core/utils/paginacion-metadata';
 
 @Injectable({
   providedIn: 'root',
@@ -53,7 +53,7 @@ export class BibliotecaService {
       .pipe(
         map((respuesta: HttpResponse<RespuestaUserItemDto[]>) => ({
           registros: respuesta.body ?? [],
-          metadata: this.leerMetadata(respuesta),
+          metadata: leerMetadataPaginada(respuesta),
         })),
       );
   }
@@ -84,27 +84,5 @@ export class BibliotecaService {
 
   puntuar(id: string, rating: number): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}/rating`, rating);
-  }
-
-  private leerMetadata(respuesta: HttpResponse<RespuestaUserItemDto[]>): PaginacionMetadata {
-    const header = respuesta.headers.get('X-Pagination');
-    const porDefecto: PaginacionMetadata = {
-      paginaActual: 1,
-      totalPaginas: 0,
-      registrosPorPagina: 10,
-      totalRegistros: 0,
-      hasPreviousPage: false,
-      hasNextPage: false,
-    };
-
-    if (!header) {
-      return porDefecto;
-    }
-
-    try {
-      return { ...porDefecto, ...JSON.parse(header) };
-    } catch {
-      return porDefecto;
-    }
   }
 }

@@ -1,3 +1,4 @@
+import { PROVEEDORES_TEST } from '@testing/test-bed-providers';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GeneroNuevoComponent } from './genero-nuevo.component';
@@ -9,6 +10,7 @@ describe('GeneroNuevoComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [GeneroNuevoComponent],
+      providers: PROVEEDORES_TEST,
     }).compileComponents();
 
     fixture = TestBed.createComponent(GeneroNuevoComponent);

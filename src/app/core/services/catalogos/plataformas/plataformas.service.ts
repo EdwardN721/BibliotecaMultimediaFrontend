@@ -10,7 +10,8 @@ import {
   AgregarPlataformaDto,
   PlataformaDto,
 } from '@core/models/plataformas.model';
-import { PaginacionMetadata, RespuestaPaginada } from '@core/models/paginacion.model';
+import { RespuestaPaginada } from '@core/models/paginacion.model';
+import { leerMetadataPaginada } from '@core/utils/paginacion-metadata';
 
 @Injectable({
   providedIn: 'root',
@@ -29,32 +30,9 @@ export class PlataformasService {
     return this.http.get<PlataformaDto[]>(`${this.apiUrl}/paginado`, { params, observe: 'response' }).pipe(
       map((respuesta) => ({
         registros: respuesta.body ?? [],
-        metadata: this.leerMetadata(respuesta),
+        metadata: leerMetadataPaginada(respuesta),
       })),
     );
-  }
-
-  private leerMetadata(respuesta: HttpResponse<PlataformaDto[]>): PaginacionMetadata {
-    const header = respuesta.headers.get('X-Pagination');
-    const porDefecto: PaginacionMetadata = {
-      paginaActual: 1,
-      totalPaginas: 0,
-      registrosPorPagina: 10,
-      totalRegistros: 0,
-      hasPreviousPage: false,
-      hasNextPage: false,
-    };
-
-    if (!header) {
-      return porDefecto;
-    }
-
-    try {
-      const metadata = JSON.parse(header) as Partial<PaginacionMetadata>;
-      return { ...porDefecto, ...metadata };
-    } catch {
-      return porDefecto;
-    }
   }
 
   obtenerPlataformaPorId(id: string): Observable<PlataformaDto> {

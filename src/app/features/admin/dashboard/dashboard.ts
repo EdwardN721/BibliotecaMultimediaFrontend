@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -40,7 +40,7 @@ export class Dashboard implements OnInit {
 
   cargando: WritableSignal<boolean> = signal(true);
 
-  readonly tarjetas = () => this.construirTarjetas();
+  readonly tarjetas = computed<StatTarjeta[]>(() => this.construirTarjetas());
 
   ngOnInit() {
     const filtroVacio = { terminoBusqueda: '', ordenadoPor: '', ordenDescendente: true };
@@ -82,8 +82,18 @@ export class Dashboard implements OnInit {
       error: () => this.ultimosAgregados.set([]),
     });
 
-    this.itemService.obtenerItems({ ...filtroVacio }, 1, 500).subscribe({
-      next: (r) => this.calcularDistribucion(r.registros),
+    // La agregación se hace en la base de datos (GROUP BY): ya no traemos
+    // cientos de ítems para calcular la distribución en el cliente
+    this.itemService.obtenerDistribucionPorTipoMedio().subscribe({
+      next: (distribucion) => {
+        this.distribucionTipos.set(
+          distribucion.map((d) => ({
+            nombre: d.nombre,
+            cantidad: d.cantidad,
+            porcentaje: Math.round(d.porcentaje),
+          })),
+        );
+      },
       error: () => this.distribucionTipos.set([]),
     });
   }
@@ -95,25 +105,6 @@ export class Dashboard implements OnInit {
     if (this.pendientes <= 0) {
       this.cargando.set(false);
     }
-  }
-
-  private calcularDistribucion(items: ItemDto[]) {
-    const grupos = new Map<string, number>();
-    for (const item of items) {
-      const tipo = item.mediaType || 'Otros';
-      grupos.set(tipo, (grupos.get(tipo) ?? 0) + 1);
-    }
-
-    const total = items.length || 1;
-    this.distribucionTipos.set(
-      [...grupos.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .map(([nombre, cantidad]) => ({
-          nombre,
-          cantidad,
-          porcentaje: Math.round((cantidad / total) * 100),
-        })),
-    );
   }
 
   private construirTarjetas(): StatTarjeta[] {

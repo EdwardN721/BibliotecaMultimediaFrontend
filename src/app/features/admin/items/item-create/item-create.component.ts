@@ -78,17 +78,16 @@ export class ItemCreateComponent implements OnInit {
     this.cargarCatalogos();
   }
   iniciarFormulario() {
+    // Creación mínima: solo título y tipo de medio obligatorios
     this.itemForm = this.fb.group({
       title: ['', Validators.required],
       descripcion: [''],
       releaseDate: [null],
-      rating: [null, [Validators.min(0), Validators.max(10)]],
-      isFavorite: [false],
       isbnOrUpc: [''],
       mediaTypeId: [null, Validators.required],
-      formatIds: [[], Validators.required],
+      formatIds: [[]],
       platformIds: [[]],
-      genreIds: [[], Validators.required],
+      genreIds: [[]],
       creatorIds: [[]],
     });
   }

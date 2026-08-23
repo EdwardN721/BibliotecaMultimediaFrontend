@@ -1,3 +1,4 @@
+import { PROVEEDORES_TEST } from '@testing/test-bed-providers';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ItemEditComponent } from './item-edit.component';
@@ -9,6 +10,7 @@ describe('ItemEditComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ItemEditComponent],
+      providers: PROVEEDORES_TEST,
     }).compileComponents();
 
     fixture = TestBed.createComponent(ItemEditComponent);

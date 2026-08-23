@@ -66,7 +66,14 @@ export class AuthService {
 
   private decodeAndSetUser(token: string){
     try{
-      const decodedToken: any = jwtDecode(token);
+      const decodedToken = jwtDecode<TokenPayload>(token);
+
+      // Token vencido: lo tratamos como sesión inexistente
+      const ahoraEnSegundos = Math.floor(Date.now() / 1000);
+      if (!decodedToken.exp || decodedToken.exp <= ahoraEnSegundos) {
+        this.logout();
+        return;
+      }
 
       // ASP.NET puede devolver un string (si hay 1 rol) o un array (si hay varios)
       const roles = decodedToken.role || [];
@@ -83,10 +90,15 @@ export class AuthService {
         role: isUserAdmin ? 'Admin' : 'User',
         nombre,
       });
-    } catch (error) {
-      console.log('Error al decodificar el token', error);
+    } catch {
       this.logout();
     }
   }
+}
 
+interface TokenPayload {
+  exp?: number;
+  role?: string | string[];
+  unique_name?: string;
+  name?: string;
 }

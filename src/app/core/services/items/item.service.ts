@@ -7,6 +7,14 @@ import { ActualizarItemDto, CrearItemDto, ItemDto } from '@core/models/item.mode
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { PaginacionMetadata, RespuestaPaginada } from '@core/models/paginacion.model';
 import { buildPaginationParams } from '@core/utils/paginacion-params';
+import { leerMetadataPaginada } from '@core/utils/paginacion-metadata';
+
+/** Distribución de ítems del catálogo por tipo de medio (dashboard admin) */
+export interface DistribucionTipoMedio {
+  nombre: string;
+  cantidad: number;
+  porcentaje: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +35,7 @@ export class ItemService {
       .pipe(
         map((respuesta: HttpResponse<ItemDto[]>) => ({
           registros: respuesta.body ?? [],
-          metadata: this.leerMetadata(respuesta),
+          metadata: leerMetadataPaginada(respuesta),
         })),
       );
   }
@@ -35,6 +43,10 @@ export class ItemService {
   obtenerDestacados(cantidad: number = 12): Observable<ItemDto[]> {
     const params: HttpParams = new HttpParams().set('cantidad', cantidad);
     return this.http.get<ItemDto[]>(`${this.apiUrl}/destacados`, { params });
+  }
+
+  obtenerDistribucionPorTipoMedio(): Observable<DistribucionTipoMedio[]> {
+    return this.http.get<DistribucionTipoMedio[]>(`${this.apiUrl}/distribucion`);
   }
 
   obtenerItemPorId(id: string): Observable<ItemDto> {
@@ -51,27 +63,5 @@ export class ItemService {
 
   eliminarItem(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  private leerMetadata(respuesta: HttpResponse<ItemDto[]>): PaginacionMetadata {
-    const header = respuesta.headers.get('X-Pagination');
-    const porDefecto: PaginacionMetadata = {
-      paginaActual: 1,
-      totalPaginas: 0,
-      registrosPorPagina: 10,
-      totalRegistros: 0,
-      hasPreviousPage: false,
-      hasNextPage: false,
-    };
-
-    if (!header) {
-      return porDefecto;
-    }
-
-    try {
-      return { ...porDefecto, ...JSON.parse(header) };
-    } catch {
-      return porDefecto;
-    }
   }
 }

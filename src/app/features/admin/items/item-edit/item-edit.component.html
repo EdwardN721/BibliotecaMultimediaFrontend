@@ -33,21 +33,16 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-          
+
           <div class="flex flex-col gap-2">
             <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Lanzamiento <span class="text-red-500">*</span></label>
             <p-iconField iconPosition="left">
               <p-inputIcon class="pi pi-calendar text-slate-400 dark:text-slate-500" />
-              <input pInputText type="date" formControlName="releaseDate" 
+              <input pInputText type="date" formControlName="releaseDate"
                      class="w-full p-3 pl-10 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all shadow-inner" />
             </p-iconField>
           </div>
-
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Calificación <span class="text-red-500">*</span></label>
-            <p-inputNumber formControlName="rating" [min]="1" [max]="5" [minFractionDigits]="0" [maxFractionDigits]="1" styleClass="w-full"
-                           inputStyleClass="w-full p-3 text-center font-black text-orange-600 dark:text-orange-400 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all shadow-inner" placeholder="1 - 5"></p-inputNumber>
-          </div>
+          <div></div>
         </div>
 
         <div class="flex flex-col gap-2">
@@ -63,7 +58,7 @@
                       placeholder="Selecciona tipo" class="w-full" styleClass="w-full" />
           </div>
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Formatos <span class="text-red-500">*</span></label>
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Formatos</label>
             <p-multiselect [options]="formatos()" optionLabel="nombre" optionValue="id" formControlName="formatIds"
                            placeholder="Ej. Físico + Digital" display="chip" class="w-full" styleClass="w-full" />
           </div>
@@ -76,7 +71,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Géneros <span class="text-red-500">*</span></label>
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Géneros</label>
             <p-multiselect [options]="generos()" optionLabel="nombre" optionValue="id" formControlName="genreIds"
                            placeholder="Selecciona géneros" display="chip" class="w-full" styleClass="w-full" />
           </div>
@@ -84,14 +79,6 @@
             <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Creadores</label>
             <p-multiselect [options]="creadores()" optionLabel="nombre" optionValue="id" formControlName="creatorIds"
                            placeholder="Selecciona creadores" display="chip" class="w-full" styleClass="w-full" />
-          </div>
-        </div>
-
-        <div class="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl p-4 flex items-center space-x-4 hover:border-orange-500/50 transition-colors shadow-sm">
-          <p-checkbox formControlName="isFavorite" [binary]="true" inputId="isFavEdit" class="bg-white dark:bg-slate-800 rounded border border-slate-400 dark:border-slate-500"></p-checkbox>
-          <div>
-            <label for="isFavEdit" class="text-sm font-bold text-slate-800 dark:text-slate-200 cursor-pointer block">Destacar como Favorito</label>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Aparecerá en la sección de recomendaciones principales.</p>
           </div>
         </div>
 

@@ -32,10 +32,12 @@
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Calificación</label>
-            <p-inputNumber formControlName="rating" [min]="1" [max]="5" [minFractionDigits]="0" [maxFractionDigits]="1"
-                           class="w-full" [fluid]="true"
-                           inputStyleClass="w-full p-3 text-center font-black text-blue-600 dark:text-blue-400 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 shadow-inner" placeholder="1 - 5"></p-inputNumber>
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">ISBN / UPC (Opcional)</label>
+            <p-iconField iconPosition="left">
+              <p-inputIcon class="pi pi-barcode text-slate-400 dark:text-slate-500"></p-inputIcon>
+              <input pInputText formControlName="isbnOrUpc" placeholder="Código de identificación"
+                     class="w-full p-3 pl-10 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner" />
+            </p-iconField>
           </div>
         </div>
 
@@ -48,15 +50,7 @@
                      class="w-full p-3 pl-10 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner" />
             </p-iconField>
           </div>
-
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">ISBN / UPC (Opcional)</label>
-            <p-iconField iconPosition="left">
-              <p-inputIcon class="pi pi-barcode text-slate-400 dark:text-slate-500"></p-inputIcon>
-              <input pInputText formControlName="isbnOrUpc" placeholder="Código de identificación"
-                     class="w-full p-3 pl-10 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all shadow-inner" />
-            </p-iconField>
-          </div>
+          <div></div>
         </div>
 
         <div class="flex flex-col gap-2">
@@ -76,7 +70,7 @@
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Formatos <span class="text-red-500">*</span></label>
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Formatos</label>
             <p-multiSelect [options]="formatos()" formControlName="formatIds" optionLabel="nombre" optionValue="id" placeholder="Ej. Físico + Digital" [filter]="false"
                            display="chip" class="w-full" [fluid]="true"></p-multiSelect>
           </div>
@@ -94,7 +88,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Géneros <span class="text-red-500">*</span></label>
+            <label class="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Géneros</label>
             <p-multiSelect [options]="generos()" formControlName="genreIds" optionLabel="name" optionValue="id" placeholder="Selecciona uno o más géneros" [filter]="true"
                            display="chip" class="w-full" [fluid]="true"></p-multiSelect>
           </div>
@@ -105,14 +99,6 @@
                            display="chip" class="w-full" [fluid]="true"></p-multiSelect>
           </div>
 
-        </div>
-
-        <div class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/80 rounded-xl p-5 flex items-center space-x-4 mt-6">
-          <p-checkbox formControlName="isFavorite" [binary]="true" inputId="isFav" class="bg-white dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-600 focus-within:ring-2 focus-within:ring-blue-500/50"></p-checkbox>
-          <div>
-            <label for="isFav" class="text-sm font-bold text-slate-800 dark:text-slate-200 cursor-pointer block select-none">Destacar como Favorito</label>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Aparecerá en la sección de recomendaciones principales.</p>
-          </div>
         </div>
 
         <div class="flex items-center justify-end space-x-4 pt-6 border-t border-slate-200 dark:border-slate-800">

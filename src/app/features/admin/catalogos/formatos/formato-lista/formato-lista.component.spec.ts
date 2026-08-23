@@ -1,3 +1,4 @@
+import { PROVEEDORES_TEST } from '@testing/test-bed-providers';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormatoListaComponent } from './formato-lista.component';
@@ -9,6 +10,7 @@ describe('FormatoListaComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FormatoListaComponent],
+      providers: PROVEEDORES_TEST,
     }).compileComponents();
 
     fixture = TestBed.createComponent(FormatoListaComponent);

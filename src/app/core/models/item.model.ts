@@ -3,13 +3,13 @@ export interface ItemDto {
   title: string;
   descripcion?: string;
   releaseDate?: string;
-  rating?: number;
+  /** Promedio calculado de las calificaciones personales de los usuarios */
+  ratingPromedio?: number | null;
   mediaType: string;
   platforms: string[];
   formats: string[];
   isbnOrUpc?: string;
   mainImageUrl?: string;
-  isFavorite: boolean;
   genres: string[];
   creators: string[];
   mediaTypeId: string;
@@ -26,8 +26,6 @@ export interface CrearItemDto {
   title: string;
   descripcion?: string;
   releaseDate?: string;
-  rating?: number;
-  isFavorite: boolean;
   isbnOrUpc?: string;
   metadata?: Record<string, unknown>;
   mediaTypeId: string;
@@ -41,8 +39,6 @@ export interface ActualizarItemDto {
   title: string;
   descripcion?: string;
   releaseDate?: string;
-  rating?: number;
-  isFavorite: boolean;
   isbnOrUpc?: string;
   metadata?: Record<string, unknown>;
   mediaTypeId: string;

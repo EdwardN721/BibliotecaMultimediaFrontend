@@ -1,30 +1,23 @@
-import { Component, inject, signal, WritableSignal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { CheckboxModule } from 'primeng/checkbox';
-import { TextareaModule } from 'primeng/textarea';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
+import { AgregarPlataformaDto } from '@core/models/plataformas.model';
 import { PlataformasService } from '@core/services/catalogos/plataformas/plataformas.service';
-import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { NuevoCatalogoBase } from '@shared/admin/catalogos/nuevo-catalogo.base';
 
 @Component({
-  selector: 'app-plataforma-nuevo.component',
+  selector: 'app-plataforma-nuevo',
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    RouterModule,
     ButtonModule,
     InputTextModule,
-    InputNumberModule,
-    CheckboxModule,
-    TextareaModule,
     IconFieldModule,
     InputIconModule,
     ToastModule,
@@ -32,45 +25,18 @@ import { NotificacionService } from '@core/services/notificacion/notificacion.se
   templateUrl: './plataforma-nuevo.component.html',
   styleUrl: './plataforma-nuevo.component.css',
 })
-export class PlataformaNuevoComponent {
-  private fb: FormBuilder = inject(FormBuilder);
-  private plataformaService: PlataformasService = inject(PlataformasService);
-  private router: Router = inject(Router);
-  private notificacion: NotificacionService = inject(NotificacionService);
+export class PlataformaNuevoComponent extends NuevoCatalogoBase {
+  private fb = inject(FormBuilder);
+  private plataformasService = inject(PlataformasService);
 
-  isSubmitting: WritableSignal<boolean> = signal<boolean>(false);
+  protected override nombreEntidad = 'plataforma';
+  protected override rutaListado = '/admin/catalogos/plataformas';
 
-  plataformaForm: FormGroup = this.fb.group({
+  formulario: FormGroup = this.fb.group({
     nombre: ['', [Validators.required, Validators.maxLength(50)]],
   });
 
-  guardar() {
-    if (this.plataformaForm.invalid) {
-      this.plataformaForm.markAllAsTouched();
-      return;
-    }
-
-    this.isSubmitting.set(true);
-
-    const payload = this.plataformaForm.getRawValue();
-
-    this.plataformaService.agregarPlataforma(payload).subscribe({
-      next: () => {
-        this.isSubmitting.set(false);
-        this.notificacion.exito(
-          'Registro exitoso',
-          `La plataforma "${payload.nombre}" se agregó al catálogo.`,
-        );
-        this.router.navigate(['/admin/catalogos/plataformas']);
-      },
-      error: (err) => {
-        console.error('Error: ', err);
-        this.notificacion.error(
-          'Error al registrar',
-          'Ocurrió un error de comunicación con el servidor.',
-        );
-        this.isSubmitting.set(false);
-      }
-    })
+  protected crearEnServicio(payload: Record<string, unknown>) {
+    return this.plataformasService.agregarPlataforma(payload as unknown as AgregarPlataformaDto);
   }
 }

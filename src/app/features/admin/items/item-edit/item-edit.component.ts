@@ -75,14 +75,12 @@ export class ItemEditComponent implements OnInit {
   itemForm: FormGroup = this.fb.group({
     title: ['', [Validators.required, Validators.maxLength(150)]],
     releaseDate: [''],
-    rating: [null, [Validators.min(1), Validators.max(5)]],
-    isFavorite: [false],
     descripcion: [''],
     metadata: [{}],
     mediaTypeId: [null, Validators.required],
-    formatIds: [[], Validators.required],
+    formatIds: [[]],
     platformIds: [[]],
-    genreIds: [[], Validators.required],
+    genreIds: [[]],
     creatorIds: [[]],
   });
 
@@ -97,8 +95,6 @@ export class ItemEditComponent implements OnInit {
         this.itemForm.patchValue({
           title: item.title,
           releaseDate: fechaLimpia,
-          rating: item.rating,
-          isFavorite: item.isFavorite,
           descripcion: item.descripcion || '',
           metadata: item.metadata || {},
           mediaTypeId: item.mediaTypeId,
@@ -169,8 +165,6 @@ export class ItemEditComponent implements OnInit {
     const payload: ActualizarItemDto = {
       title: formValues.title,
       releaseDate: formValues.releaseDate || null,
-      rating: formValues.rating ?? null,
-      isFavorite: formValues.isFavorite,
       descripcion: formValues.descripcion || null,
       metadata: Object.keys(formValues.metadata || {}).length ? formValues.metadata : null,
       mediaTypeId: formValues.mediaTypeId,

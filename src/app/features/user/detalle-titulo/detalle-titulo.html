@@ -49,9 +49,9 @@
         <h1 class="text-3xl sm:text-4xl font-black text-white leading-tight">{{ it.title }}</h1>
 
         <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-3 text-sm text-zinc-400">
-          @if (it.rating) {
+          @if (it.ratingPromedio) {
             <span class="flex items-center gap-1 text-emerald-400 font-bold">
-              <i class="pi pi-star-fill text-xs"></i> {{ it.rating }}/5
+              <i class="pi pi-star-fill text-xs"></i> {{ it.ratingPromedio | number:'1.0-1' }}/5
             </span>
             <span class="text-zinc-700">•</span>
           }

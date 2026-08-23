@@ -1,30 +1,20 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
-import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
 import { Tooltip } from 'primeng/tooltip';
-import { ConfirmationService } from 'primeng/api';
+import { FechaCdmxPipe } from '@shared/pipe/fecha-cdmx.pipe';
+import { TipoMedioDto } from '@core/models/tipo.medios.model';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { TipoMediosService } from '@core/services/catalogos/tipo-medios/tipo-medios.service';
-import { TipoMedioDto } from '@core/models/tipo.medios.model';
-import { NotificacionService } from '@core/services/notificacion/notificacion.service';
-import { PaginacionMetadata } from '@core/models/paginacion.model';
-
-const METADATA_VACIA: PaginacionMetadata = {
-  paginaActual: 1,
-  totalPaginas: 0,
-  registrosPorPagina: 10,
-  totalRegistros: 0,
-  hasPreviousPage: false,
-  hasNextPage: false,
-};
+import { ListaCatalogoBase } from '@shared/admin/catalogos/lista-catalogo.base';
 
 @Component({
-  selector: 'app-tipo-medio-lista.component',
+  selector: 'app-tipo-medio-lista',
+  standalone: true,
   imports: [
     CommonModule,
     ConfirmDialogModule,
@@ -38,95 +28,16 @@ const METADATA_VACIA: PaginacionMetadata = {
   templateUrl: './tipo-medio-lista.component.html',
   styleUrl: './tipo-medio-lista.component.css',
 })
-export class TipoMedioListaComponent implements OnInit {
-  private tipoMedioService: TipoMediosService = inject(TipoMediosService);
-  private confirmationService: ConfirmationService = inject(ConfirmationService);
-  private notificacion: NotificacionService = inject(NotificacionService);
+export class TipoMedioListaComponent extends ListaCatalogoBase<TipoMedioDto> {
+  private tipoMediosService = inject(TipoMediosService);
 
-  tipoMedios: WritableSignal<TipoMedioDto[]> = signal<TipoMedioDto[]>([]);
-  isLoading: WritableSignal<boolean> = signal(true);
-  errorMessage: WritableSignal<string | null> = signal<string | null>(null);
-  metadata: WritableSignal<PaginacionMetadata> = signal<PaginacionMetadata>({ ...METADATA_VACIA });
+  protected override nombreEntidad = 'tipo de medio';
 
-  paginaActual = signal(1);
-  tamanioPagina = signal(10);
-  campoOrden = signal('');
-  ordenDescendente = signal(true);
-
-  ngOnInit() {
-    this.cargarFormatos();
+  protected cargarDesdeServicio(filtro: FiltroGlobal, pagina: number, tamanio: number) {
+    return this.tipoMediosService.obtenerTipoMedios(filtro, pagina, tamanio);
   }
 
-  cargarFormatos() {
-    this.isLoading.set(true);
-
-    const miFiltro: FiltroGlobal = {
-      terminoBusqueda: '',
-      ordenadoPor: this.campoOrden(),
-      ordenDescendente: this.ordenDescendente(),
-    };
-
-    this.tipoMedioService.obtenerTipoMedios(miFiltro, this.paginaActual(), this.tamanioPagina()).subscribe({
-      next: (respuesta) => {
-        this.tipoMedios.set(respuesta.registros);
-        this.metadata.set(respuesta.metadata);
-        this.notificacion.exito('Éxito', `Éxito al cargar los medios.`);
-        this.isLoading.set(false);
-      },
-      error: (err) => {
-        console.error('Error al cargar los medios:', err);
-        this.notificacion.error('Error al obtener', 'Ocurrio un error al cargar la información');
-        this.errorMessage.set('No se pudo recuperar el cátalogo de tipo medios');
-        this.isLoading.set(false);
-      },
-    });
-  }
-
-  alCambiarPagina(evento: { first?: number; rows?: number }) {
-    if (!evento.rows) return;
-    this.tamanioPagina.set(evento.rows);
-    this.paginaActual.set(Math.floor((evento.first ?? 0) / evento.rows) + 1);
-    this.cargarFormatos();
-  }
-
-  alOrdenar(evento: { field?: string; order?: number }) {
-    if (!evento.field) return;
-    this.campoOrden.set(evento.field);
-    this.ordenDescendente.set(evento.order !== 1);
-    this.paginaActual.set(1);
-    this.cargarFormatos();
-  }
-
-  eliminar(id: string, nombre: string) {
-    this.confirmationService.confirm({
-      message: `¿Estás seguro de que deseas eliminar a "${nombre}"? Esta acción no se puede deshacer.`,
-      header: 'Confirmar Eliminación',
-      icon: 'pi pi-exclamation-triangle text-red-500 text-2xl mr-2',
-      acceptLabel: 'Sí, Eliminar',
-      rejectLabel: 'Cancelar',
-      rejectButtonStyleClass:
-        'p-button-text px-4 py-2.5 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl font-bold transition-all',
-      acceptButtonStyleClass:
-        'px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white border-none rounded-xl shadow-lg shadow-red-600/30 hover:-translate-y-0.5 transition-all font-bold ml-3',
-
-      accept: () => {
-        this.tipoMedioService.eliminarTipoMedio(id).subscribe({
-          next: () => {
-            this.notificacion.exito('Eliminado', `"${nombre}" fue eliminado exitosamente`);
-            if (this.tipoMedios().length === 1 && this.paginaActual() > 1) {
-              this.paginaActual.update((p) => p - 1);
-            }
-            this.cargarFormatos();
-          },
-          error: (err) => {
-            this.notificacion.error(
-              'Operación denegada',
-              'No se pudo eliminar el medio.',
-            );
-            console.error('Error al eliminar:', err);
-          },
-        });
-      },
-    });
+  protected eliminarEnServicio(id: string) {
+    return this.tipoMediosService.eliminarTipoMedio(id);
   }
 }

@@ -52,6 +52,7 @@ export class Explorar implements OnInit {
   paginaActual: number = 1;
   readonly pageSize = 24;
   hayMasPaginas: WritableSignal<boolean> = signal(false);
+  biblioteca: WritableSignal<RespuestaUserItemDto[]> = signal([]);
 
   ngOnInit() {
     this.cargarFiltros();
@@ -76,12 +77,10 @@ export class Explorar implements OnInit {
     });
   }
 
-  biblioteca: RespuestaUserItemDto[] = [];
-
   cargarBiblioteca() {
     this.bibliotecaService.obtenerBiblioteca({}, 1, 200).subscribe({
       next: (respuesta) => {
-        this.biblioteca = respuesta.registros;
+        this.biblioteca.set(respuesta.registros);
         this.marcarEnBiblioteca();
       },
       error: () => {},
@@ -89,8 +88,9 @@ export class Explorar implements OnInit {
   }
 
   marcarEnBiblioteca() {
-    const ids = new Set(this.biblioteca.map((b) => b.itemId));
-    const favoritos = new Map(this.biblioteca.map((b) => [b.itemId, b]));
+    const registros = this.biblioteca();
+    const ids = new Set(registros.map((b) => b.itemId));
+    const favoritos = new Map(registros.map((b) => [b.itemId, b]));
     this.tarjetas.update((lista) =>
       lista.map((t) => ({
         ...t,
@@ -148,7 +148,7 @@ export class Explorar implements OnInit {
         .filter(Boolean)
         .join(' • '),
       descripcion: item.descripcion,
-      ratingCatalogo: item.rating ?? undefined,
+      ratingCatalogo: item.ratingPromedio ?? undefined,
     };
   }
 
@@ -186,7 +186,7 @@ export class Explorar implements OnInit {
           nuevo.delete(tarjeta.id);
           return nuevo;
         });
-        this.biblioteca.push(creado);
+        this.biblioteca.update((lista) => [...lista, creado]);
         this.marcarEnBiblioteca();
         this.notificacion.exito('Agregado', `"${tarjeta.titulo}" se añadió a tu biblioteca.`);
       },
@@ -210,8 +210,9 @@ export class Explorar implements OnInit {
     const nuevo = !tarjeta.isFavorite;
     this.bibliotecaService.marcarFavorito(tarjeta.userItemId, nuevo).subscribe({
       next: () => {
-        const registro = this.biblioteca.find((b) => b.itemId === tarjeta.id);
-        if (registro) registro.isFavorite = nuevo;
+        this.biblioteca.update((lista) =>
+          lista.map((b) => (b.itemId === tarjeta.id ? { ...b, isFavorite: nuevo } : b)),
+        );
         this.marcarEnBiblioteca();
       },
       error: () => {

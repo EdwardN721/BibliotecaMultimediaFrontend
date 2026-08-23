@@ -153,7 +153,7 @@ export class Inicio implements OnInit {
         .filter(Boolean)
         .join(' • '),
       descripcion: item.descripcion,
-      ratingCatalogo: item.rating ?? undefined,
+      ratingCatalogo: item.ratingPromedio ?? undefined,
       enBiblioteca: idsEnBiblioteca.has(item.id),
     }));
   }
