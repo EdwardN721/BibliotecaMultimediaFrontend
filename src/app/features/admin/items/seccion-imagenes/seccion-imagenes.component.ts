@@ -61,12 +61,17 @@ export class SeccionImagenesComponent {
     this.isSubiendo.set(true);
     this.progreso.set(0);
 
+    let exitosas = 0;
+    let fallidas = 0;
+
     for (const archivo of Array.from(archivos)) {
       try {
         await this.itemImagesService.subirImagen(this.itemId(), archivo, (p) =>
           this.progreso.set(Math.max(this.progreso(), p)),
         );
+        exitosas++;
       } catch {
+        fallidas++;
         this.notificacion.error('Error al subir', `No se pudo subir "${archivo.name}".`);
       }
     }
@@ -75,7 +80,12 @@ export class SeccionImagenesComponent {
     this.progreso.set(0);
     input.value = '';
     this.cargarImagenes();
-    this.notificacion.exito('Imágenes subidas', 'Las imágenes se agregaron al ítem.');
+
+    if (exitosas > 0 && fallidas === 0) {
+      this.notificacion.exito('Imágenes subidas', 'Las imágenes se agregaron al ítem.');
+    } else if (exitosas > 0) {
+      this.notificacion.info('Subida parcial', `${exitosas} imagen(es) subidas, ${fallidas} con error.`);
+    }
   }
 
   marcarPrincipal(imagen: ImagenItemDto): void {
