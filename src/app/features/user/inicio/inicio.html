@@ -92,7 +92,7 @@
     <h2 class="text-xl sm:text-2xl font-black text-white">{{ saludo() }} 👋</h2>
 
     @if (stats(); as s) {
-      <div class="grid grid-cols-4 gap-2 sm:gap-3">
+      <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
         <div class="rounded-lg bg-zinc-900/80 ring-1 ring-white/5 px-3 sm:px-5 py-2.5 text-center min-w-[72px]">
           <p class="text-lg sm:text-2xl font-black text-amber-400">{{ s.pendientes }}</p>
           <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">Pendientes</p>
@@ -106,12 +106,35 @@
           <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">Completados</p>
         </div>
         <div class="rounded-lg bg-zinc-900/80 ring-1 ring-white/5 px-3 sm:px-5 py-2.5 text-center min-w-[72px]">
+          <p class="text-lg sm:text-2xl font-black text-violet-400">{{ s.deseados }}</p>
+          <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">Deseados</p>
+        </div>
+        <div class="rounded-lg bg-zinc-900/80 ring-1 ring-white/5 px-3 sm:px-5 py-2.5 text-center min-w-[72px]">
           <p class="text-lg sm:text-2xl font-black text-red-400">{{ s.favoritos }}</p>
           <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">Favoritos</p>
         </div>
       </div>
     }
   </div>
+
+  <!-- Tu biblioteca por catálogo -->
+  @if (tarjetasCatalogo().length) {
+    <div class="px-4 sm:px-10 mt-4 mb-2">
+      <div class="flex flex-wrap gap-2 sm:gap-3">
+        @for (t of tarjetasCatalogo(); track t.nombre) {
+          <div class="flex items-center gap-3 rounded-lg bg-zinc-900/80 ring-1 ring-white/5 px-4 py-2.5">
+            <span class="w-5 h-5 text-red-500 shrink-0 block">
+              <app-icono-catalogo [tipo]="t.icono" />
+            </span>
+            <div>
+              <p class="text-lg font-black text-white leading-none">{{ t.cantidad }}</p>
+              <p class="text-[10px] sm:text-xs text-zinc-500 font-semibold uppercase tracking-wide">{{ t.nombre }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
 
   <!-- Filas de mi biblioteca -->
   @if (!cargandoBiblioteca() && biblioteca().length === 0) {
@@ -132,6 +155,9 @@
                    (toggleFavorito)="toggleFavoritoDesdeFila($event)" />
 
   <app-content-row titulo="Pendientes" [items]="filaPendientes()" [cargando]="cargandoBiblioteca()"
+                   (toggleFavorito)="toggleFavoritoDesdeFila($event)" />
+
+  <app-content-row titulo="Lista de deseos" [items]="filaDeseados()" [cargando]="cargandoBiblioteca()"
                    (toggleFavorito)="toggleFavoritoDesdeFila($event)" />
 
   <!-- Novedades del catálogo -->

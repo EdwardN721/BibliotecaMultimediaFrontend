@@ -46,6 +46,8 @@ export class PosterCard {
         return `${base} bg-emerald-600/90 text-white`;
       case ConsumptionStatus.Abandonado:
         return `${base} bg-red-600/90 text-white`;
+      case ConsumptionStatus.Deseado:
+        return `${base} bg-violet-600/90 text-white`;
       default:
         return `${base} bg-amber-500/90 text-black`;
     }

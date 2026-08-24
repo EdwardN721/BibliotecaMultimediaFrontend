@@ -15,16 +15,22 @@ import {
 import { BibliotecaStats } from '@core/models/biblioteca-stats.model';
 import { PosterCardItem } from '@shared/components/user/poster-card/poster-card';
 import { ContentRow } from '@shared/components/user/content-row/content-row';
+import { IconoCatalogo } from '@shared/components/user/icono-catalogo/icono-catalogo';
 
 interface FilaCatalogo {
   titulo: string;
   items: PosterCardItem[];
 }
 
+interface TarjetaCatalogo {
+  nombre: string;
+  cantidad: number;
+  icono: string;
+}
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [CommonModule, RouterLink, ContentRow],
+  imports: [CommonModule, RouterLink, ContentRow, IconoCatalogo],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
@@ -61,7 +67,27 @@ export class Inicio implements OnInit {
   readonly filaPendientes = computed(() =>
     this.mapearBiblioteca(this.biblioteca().filter((b) => b.status === ConsumptionStatus.Pendiente)),
   );
+  readonly filaDeseados = computed(() =>
+    this.mapearBiblioteca(this.biblioteca().filter((b) => b.status === ConsumptionStatus.Deseado)),
+  );
   readonly filaNovedades = computed(() => this.mapearCatalogo(this.destacados()));
+
+  /** Tarjetas de conteo por tipo de medio (catálogo) + préstamos activos */
+  readonly tarjetasCatalogo = computed<TarjetaCatalogo[]>(() => {
+    const s = this.stats();
+    if (!s?.porCatalogo?.length) return [];
+
+    const tarjetas: TarjetaCatalogo[] = s.porCatalogo.map((c) => ({
+      nombre: c.nombre,
+      cantidad: c.cantidad,
+      icono: IconoCatalogo.clavePorNombre(c.nombre),
+    }));
+
+    if (s.prestadosActivos > 0) {
+      tarjetas.push({ nombre: 'Prestados', cantidad: s.prestadosActivos, icono: 'prestado' });
+    }
+    return tarjetas;
+  });
 
   readonly filasCatalogo = computed<FilaCatalogo[]>(() => {
     const grupos = new Map<string, ItemDto[]>();

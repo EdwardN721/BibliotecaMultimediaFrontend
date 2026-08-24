@@ -71,6 +71,13 @@
           }
         </div>
 
+        @if (copiaPropiaEtiqueta()) {
+          <p class="flex items-center gap-2 mt-2 text-xs text-zinc-500">
+            <i class="pi pi-bookmark-fill text-[10px] text-emerald-400"></i>
+            Lo tengo en: <span class="text-zinc-300 font-semibold">{{ copiaPropiaEtiqueta() }}</span>
+          </p>
+        }
+
         @if (it.genres.length) {
           <div class="flex flex-wrap gap-2 mt-4">
             @for (genero of it.genres; track genero) {
@@ -99,7 +106,13 @@
         <!-- ===== Panel de acciones ===== -->
         <section class="mt-8 rounded-2xl bg-zinc-900/70 ring-1 ring-white/5 p-5 sm:p-6">
 
-          @if (!enBiblioteca()) {
+          @if (cargandoBiblioteca()) {
+            <!-- Evita mostrar la rama equivocada mientras no sabemos si está en tu biblioteca -->
+            <div class="flex items-center gap-3 text-zinc-500 py-1">
+              <i class="pi pi-spin pi-spinner"></i>
+              <span class="text-sm">Revisando tu biblioteca…</span>
+            </div>
+          } @else if (!enBiblioteca()) {
             <h2 class="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-4">Agregar a mi biblioteca</h2>
             <div class="flex flex-col sm:flex-row sm:items-center gap-3">
               <select [(ngModel)]="nuevoStatus"
@@ -186,6 +199,156 @@
                     {{ ui.isPrivate ? 'Privado' : 'Público' }}
                   </button>
                 </div>
+              </div>
+
+              <!-- Mi copia: formatos y plataformas/consolas en que lo tengo -->
+              <div class="lg:col-span-2 pt-1">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Mi copia</label>
+                  @if (sincronizandoCopia()) {
+                    <span class="text-[11px] text-zinc-500 flex items-center gap-1.5">
+                      <i class="pi pi-spin pi-spinner text-[10px]"></i> Guardando…
+                    </span>
+                  }
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <p class="text-[11px] text-zinc-500 mb-1.5">Formatos en que lo tengo</p>
+                    @if (opcionesFormatos().length) {
+                      <p-multiselect [options]="opcionesFormatos()" [(ngModel)]="formatosPropios"
+                                     (onChange)="guardarCopiaPropia()"
+                                     optionLabel="nombre" optionValue="id" display="chip"
+                                     placeholder="Ej: Físico, Digital" [filter]="false"
+                                     inputId="formatos-propios" styleClass="w-full"
+                                     [style]="{ width: '100%' }" appendTo="body" />
+                    } @else {
+                      <p class="text-xs text-zinc-600 italic">Este título no tiene formatos registrados.</p>
+                    }
+                  </div>
+                  <div>
+                    <p class="text-[11px] text-zinc-500 mb-1.5">Consolas / Plataformas donde lo tengo</p>
+                    @if (opcionesPlataformas().length) {
+                      <p-multiselect [options]="opcionesPlataformas()" [(ngModel)]="plataformasPropias"
+                                     (onChange)="guardarCopiaPropia()"
+                                     optionLabel="nombre" optionValue="id" display="chip"
+                                     placeholder="Ej: PS5, PC, Spotify" [filter]="false"
+                                     inputId="plataformas-propias" styleClass="w-full"
+                                     [style]="{ width: '100%' }" appendTo="body" />
+                    } @else {
+                      <p class="text-xs text-zinc-600 italic">Este título no tiene plataformas registradas.</p>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reseña personal -->
+              <div class="lg:col-span-2 pt-1">
+                @if (!editandoResena()) {
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Tu reseña</label>
+                    <button (click)="iniciarEdicionResena()"
+                            class="w-7 h-7 rounded-md border border-zinc-600 text-zinc-300 hover:border-white hover:text-white flex items-center justify-center transition-colors"
+                            title="{{ ui.review ? 'Editar reseña' : 'Escribir reseña' }}">
+                      <i class="pi pi-pencil text-[10px]"></i>
+                    </button>
+                  </div>
+                  @if (ui.review) {
+                    <p class="text-sm text-zinc-300 leading-relaxed whitespace-pre-line">{{ ui.review }}</p>
+                  } @else {
+                    <p class="text-sm text-zinc-600 italic">Aún no has escrito una reseña de este título.</p>
+                  }
+                } @else {
+                  <label class="block text-xs font-bold text-zinc-500 uppercase tracking-wide mb-2">Tu reseña</label>
+                  <textarea [(ngModel)]="resenaTemporal" rows="4" maxlength="2000"
+                            placeholder="¿Qué te pareció este título? ¿Lo recomendarías?"
+                            class="w-full bg-zinc-800 border border-zinc-700 text-zinc-100 text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600 resize-y"></textarea>
+                  <div class="flex items-center justify-end gap-2 mt-2">
+                    <span class="mr-auto text-[11px] text-zinc-600">{{ resenaTemporal.length }}/2000</span>
+                    <button (click)="cancelarResena()"
+                            class="px-4 py-1.5 rounded-lg border border-zinc-700 text-zinc-400 hover:text-white hover:border-zinc-500 text-xs font-semibold transition-colors">
+                      Cancelar
+                    </button>
+                    <button (click)="guardarResena()" [disabled]="guardandoResena()"
+                            class="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold transition-colors">
+                      @if (guardandoResena()) { <i class="pi pi-spin pi-spinner"></i> }
+                      Guardar
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <!-- Préstamos -->
+              <div class="lg:col-span-2 pt-1">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-xs font-bold text-zinc-500 uppercase tracking-wide">Préstamos</label>
+                </div>
+
+                @if (ui.prestamoActivoA) {
+                  <p class="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 ring-1 ring-amber-400/30 text-amber-300 text-sm font-semibold">
+                    <i class="pi pi-arrow-right-arrow-left rotate-90 text-xs"></i>
+                    Prestado a {{ ui.prestamoActivoA }} — aún no te lo devuelve
+                  </p>
+                }
+
+                @if (prestamos().length) {
+                  <ul class="space-y-2 mb-3">
+                    @for (prestamo of prestamos(); track prestamo.id) {
+                      <li class="flex items-start gap-3 px-3 py-2.5 rounded-lg bg-zinc-800/60 ring-1 ring-white/5">
+                        <i class="pi pi-user mt-0.5 text-zinc-500 text-sm"></i>
+                        <div class="min-w-0 flex-1">
+                          <p class="text-sm font-semibold text-zinc-200 flex items-center gap-2 flex-wrap">
+                            {{ prestamo.nombrePersona }}
+                            <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full"
+                                  [ngClass]="prestamo.estaActivo ? 'bg-amber-500/15 text-amber-400 ring-1 ring-amber-400/30' : 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-400/20'">
+                              {{ prestamo.estaActivo ? 'Prestado' : 'Devuelto' }}
+                            </span>
+                          </p>
+                          <p class="text-[11px] text-zinc-500 mt-0.5">
+                            {{ prestamo.fechaPrestamo | date : 'dd MMM yyyy' : undefined : 'es' }}
+                            @if (!prestamo.estaActivo && prestamo.fechaDevolucion) {
+                              → devuelto el {{ prestamo.fechaDevolucion | date : 'dd MMM yyyy' : undefined : 'es' }}
+                            }
+                          </p>
+                          @if (prestamo.notas) {
+                            <p class="text-xs text-zinc-400 mt-1 leading-snug">{{ prestamo.notas }}</p>
+                          }
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                          @if (prestamo.estaActivo) {
+                            <button (click)="devolver(prestamo)" [disabled]="gestionandoPrestamo()"
+                                    title="Registrar devolución"
+                                    class="w-7 h-7 rounded-md border border-emerald-600/50 text-emerald-400 hover:bg-emerald-500/10 disabled:opacity-40 flex items-center justify-center transition-colors">
+                              <i class="pi pi-check text-[11px]"></i>
+                            </button>
+                          }
+                          <button (click)="quitarPrestamo(prestamo)"
+                                  title="Borrar registro"
+                                  class="w-7 h-7 rounded-md border border-zinc-600 text-zinc-400 hover:border-red-500 hover:text-red-400 flex items-center justify-center transition-colors">
+                            <i class="pi pi-trash text-[10px]"></i>
+                          </button>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                } @else if (!ui.prestamoActivoA) {
+                  <p class="text-sm text-zinc-600 italic mb-3">Nunca has prestado este título.</p>
+                }
+
+                @if (!ui.prestamoActivoA) {
+                  <form (submit)="crearPrestamo()" class="flex flex-col sm:flex-row gap-2">
+                    <input [(ngModel)]="nuevoPrestamoNombre" name="nombrePersona" type="text" maxlength="120" required
+                           placeholder="¿A quién se lo prestas?"
+                           class="flex-1 min-w-0 bg-zinc-800 border border-zinc-700 text-zinc-100 text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600" />
+                    <input [(ngModel)]="nuevoPrestamoNotas" name="notasPrestamo" type="text" maxlength="500"
+                           placeholder="Nota (opcional)"
+                           class="flex-1 min-w-0 sm:max-w-[220px] bg-zinc-800 border border-zinc-700 text-zinc-100 text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-600" />
+                    <button type="submit" [disabled]="!nuevoPrestamoNombre.trim() || gestionandoPrestamo()"
+                            class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-zinc-100 hover:bg-white disabled:opacity-40 text-zinc-900 font-bold text-sm transition-colors shrink-0">
+                      @if (gestionandoPrestamo()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-send text-xs"></i> }
+                      Prestar
+                    </button>
+                  </form>
+                }
               </div>
             </div>
 

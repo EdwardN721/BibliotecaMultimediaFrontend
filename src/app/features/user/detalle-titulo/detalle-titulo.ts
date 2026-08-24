@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 import { ItemService } from '@core/services/items/item.service';
 import { BibliotecaService } from '@core/services/biblioteca/biblioteca.service';
@@ -15,11 +16,17 @@ import {
   PeticionActualizarUserItemDto,
   RespuestaUserItemDto,
 } from '@core/models/biblioteca.model';
+import { RespuestaPrestamoDto } from '@core/models/prestamo.model';
+
+interface OpcionCopia {
+  id: string;
+  nombre: string;
+}
 
 @Component({
   selector: 'app-detalle-titulo',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, MultiSelectModule],
   templateUrl: './detalle-titulo.html',
   styleUrl: './detalle-titulo.css',
 })
@@ -39,17 +46,60 @@ export class DetalleTitulo {
   item: WritableSignal<ItemDto | null> = signal(null);
   userItem: WritableSignal<RespuestaUserItemDto | null> = signal(null);
   cargando: WritableSignal<boolean> = signal(true);
+  /** true mientras no sabemos aún si el título está en la biblioteca del usuario */
+  cargandoBiblioteca: WritableSignal<boolean> = signal(true);
 
   nuevoStatus: ConsumptionStatus = ConsumptionStatus.Pendiente;
   guardando: WritableSignal<boolean> = signal(false);
   editandoProgreso: WritableSignal<boolean> = signal(false);
   progresoTemporal: string = '';
 
+  /** Copia propia del usuario: formatos y plataformas/consolas seleccionadas */
+  formatosPropios: string[] = [];
+  plataformasPropias: string[] = [];
+  sincronizandoCopia: WritableSignal<boolean> = signal(false);
+
+  /** Reseña personal */
+  editandoResena: WritableSignal<boolean> = signal(false);
+  resenaTemporal: string = '';
+  guardandoResena: WritableSignal<boolean> = signal(false);
+
+  /** Préstamos del título */
+  prestamos: WritableSignal<RespuestaPrestamoDto[]> = signal([]);
+  nuevoPrestamoNombre: string = '';
+  nuevoPrestamoNotas: string = '';
+  gestionandoPrestamo: WritableSignal<boolean> = signal(false);
+
   readonly enBiblioteca = computed(() => this.userItem() !== null);
 
   readonly anio = computed(() => {
     const fecha = this.item()?.releaseDate;
     return fecha ? new Date(fecha).getFullYear() : null;
+  });
+
+  /** Opciones de formatos del catálogo (id + nombre) para "mi copia" */
+  readonly opcionesFormatos = computed<OpcionCopia[]>(() => {
+    const it = this.item();
+    if (!it) return [];
+    return it.formatIds
+      .map((id, i) => ({ id, nombre: it.formats[i] ?? '' }))
+      .filter((o) => o.nombre !== '');
+  });
+
+  /** Opciones de plataformas/consolas del catálogo (id + nombre) para "mi copia" */
+  readonly opcionesPlataformas = computed<OpcionCopia[]>(() => {
+    const it = this.item();
+    if (!it) return [];
+    return it.platformIds
+      .map((id, i) => ({ id, nombre: it.platforms[i] ?? '' }))
+      .filter((o) => o.nombre !== '');
+  });
+
+  /** Etiqueta "Lo tengo en: X · Y" para la ficha */
+  readonly copiaPropiaEtiqueta = computed(() => {
+    const ui = this.userItem();
+    if (!ui) return '';
+    return [...(ui.ownedFormats ?? []), ...(ui.ownedPlatforms ?? [])].join(' · ');
   });
 
   ngOnInit() {
@@ -70,15 +120,19 @@ export class DetalleTitulo {
       },
     });
 
-    this.bibliotecaService.obtenerBiblioteca({}, 1, 200).subscribe({
-      next: (respuesta) => {
-        const encontrado = respuesta.registros.find((r) => r.itemId === id) ?? null;
-        if (encontrado) {
-          this.userItem.set(encontrado);
-          this.nuevoStatus = encontrado.status;
+    // Consulta directa y ligera: la API responde 204 si el título no está en la biblioteca
+    this.bibliotecaService.obtenerEntradaPorItemId(id).subscribe({
+      next: (entrada) => {
+        if (entrada) {
+          this.userItem.set(entrada);
+          this.nuevoStatus = entrada.status;
+          this.formatosPropios = [...(entrada.ownedFormatIds ?? [])];
+          this.plataformasPropias = [...(entrada.ownedPlatformIds ?? [])];
+          this.cargarPrestamos(entrada.id);
         }
+        this.cargandoBiblioteca.set(false);
       },
-      error: () => {},
+      error: () => this.cargandoBiblioteca.set(false),
     });
   }
 
@@ -214,6 +268,168 @@ export class DetalleTitulo {
     });
   }
 
+  /** Guarda en qué formatos/plataformas/consolas el usuario tiene el título */
+  guardarCopiaPropia() {
+    const ui = this.userItem();
+    if (!ui) return;
+
+    const dto: PeticionActualizarUserItemDto = {
+      ownedFormatIds: this.formatosPropios,
+      ownedPlatformIds: this.plataformasPropias,
+    };
+    this.sincronizandoCopia.set(true);
+    this.bibliotecaService.actualizarItemDeBiblioteca(ui.id, dto).subscribe({
+      next: () => {
+        this.sincronizandoCopia.set(false);
+        this.userItem.update((v) =>
+          v
+            ? {
+                ...v,
+                ownedFormatIds: [...this.formatosPropios],
+                ownedPlatformIds: [...this.plataformasPropias],
+                ownedFormats: this.nombresSeleccionados(this.opcionesFormatos(), this.formatosPropios),
+                ownedPlatforms: this.nombresSeleccionados(this.opcionesPlataformas(), this.plataformasPropias),
+              }
+            : v,
+        );
+      },
+      error: () => {
+        this.sincronizandoCopia.set(false);
+        this.notificacion.error('Error', 'No se pudo guardar tu copia.');
+      },
+    });
+  }
+
+  private nombresSeleccionados(opciones: OpcionCopia[], ids: string[]): string[] {
+    return opciones.filter((o) => ids.includes(o.id)).map((o) => o.nombre);
+  }
+
+  // ===== Préstamos =====
+
+  cargarPrestamos(userItemId: string) {
+    this.bibliotecaService.obtenerPrestamos(userItemId).subscribe({
+      next: (lista) => this.prestamos.set(lista),
+      error: () => this.prestamos.set([]),
+    });
+  }
+
+  private refrescarPrestamoActivo() {
+    const activo = this.prestamos().find((p) => p.estaActivo);
+    this.userItem.update((v) => (v ? { ...v, prestamoActivoA: activo?.nombrePersona ?? null } : v));
+  }
+
+  crearPrestamo() {
+    const ui = this.userItem();
+    const nombre = this.nuevoPrestamoNombre.trim();
+    if (!ui || !nombre) return;
+
+    const activo = this.prestamos().find((p) => p.estaActivo);
+    if (activo) {
+      this.notificacion.error('Ya está prestado', `"${ui.titulo}" sigue con ${activo.nombrePersona}.`);
+      return;
+    }
+
+    this.gestionandoPrestamo.set(true);
+    this.bibliotecaService
+      .agregarPrestamo(ui.id, {
+        nombrePersona: nombre,
+        notas: this.nuevoPrestamoNotas.trim() || undefined,
+      })
+      .subscribe({
+        next: (creado) => {
+          this.prestamos.update((lista) => [creado, ...lista]);
+          this.nuevoPrestamoNombre = '';
+          this.nuevoPrestamoNotas = '';
+          this.gestionandoPrestamo.set(false);
+          this.refrescarPrestamoActivo();
+          this.notificacion.exito('Préstamo registrado', `Le prestaste "${ui.titulo}" a ${creado.nombrePersona}.`);
+        },
+        error: (err) => {
+          this.gestionandoPrestamo.set(false);
+          this.notificacion.error('Error', err.error?.detail ?? 'No se pudo registrar el préstamo.');
+        },
+      });
+  }
+
+  devolver(prestamo: RespuestaPrestamoDto) {
+    if (!prestamo.estaActivo) return;
+
+    this.gestionandoPrestamo.set(true);
+    this.bibliotecaService.registrarDevolucion(prestamo.id).subscribe({
+      next: () => {
+        this.prestamos.update((lista) =>
+          lista.map((p) =>
+            p.id === prestamo.id ? { ...p, estaActivo: false, fechaDevolucion: new Date().toISOString() } : p,
+          ),
+        );
+        this.gestionandoPrestamo.set(false);
+        this.refrescarPrestamoActivo();
+        this.notificacion.exito('Devolución registrada', `"${this.userItem()?.titulo ?? 'El título'}" volvió contigo.`);
+      },
+      error: () => {
+        this.gestionandoPrestamo.set(false);
+        this.notificacion.error('Error', 'No se pudo registrar la devolución.');
+      },
+    });
+  }
+
+  quitarPrestamo(prestamo: RespuestaPrestamoDto) {
+    this.confirmation.confirm({
+      header: 'Eliminar préstamo',
+      message: `¿Borrar el registro del préstamo a "${prestamo.nombrePersona}"?`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonProps: { label: 'Sí, borrar', severity: 'danger' },
+      rejectButtonProps: { label: 'Cancelar', severity: 'secondary' },
+      accept: () => {
+        this.bibliotecaService.eliminarPrestamo(prestamo.id).subscribe({
+          next: () => {
+            this.prestamos.update((lista) => lista.filter((p) => p.id !== prestamo.id));
+            this.refrescarPrestamoActivo();
+            this.notificacion.exito('Registro eliminado', '');
+          },
+          error: () => {
+            this.notificacion.error('Error', 'No se pudo eliminar el registro.');
+          },
+        });
+      },
+    });
+  }
+
+  iniciarEdicionResena() {
+    const ui = this.userItem();
+    if (!ui) return;
+    this.resenaTemporal = ui.review ?? '';
+    this.editandoResena.set(true);
+  }
+
+  cancelarResena() {
+    this.editandoResena.set(false);
+    this.resenaTemporal = '';
+  }
+
+  guardarResena() {
+    const ui = this.userItem();
+    if (!ui) return;
+
+    // String vacío borra la reseña (el backend ignora null = "no tocar")
+    const review = this.resenaTemporal.trim();
+    const dto: PeticionActualizarUserItemDto = { review };
+    this.guardandoResena.set(true);
+    this.bibliotecaService.actualizarItemDeBiblioteca(ui.id, dto).subscribe({
+      next: () => {
+        this.userItem.update((v) => (v ? { ...v, review } : v));
+        this.editandoResena.set(false);
+        this.resenaTemporal = '';
+        this.guardandoResena.set(false);
+        this.notificacion.exito(review ? 'Reseña guardada' : 'Reseña eliminada', '');
+      },
+      error: () => {
+        this.guardandoResena.set(false);
+        this.notificacion.error('Error', 'No se pudo guardar tu reseña.');
+      },
+    });
+  }
+
   eliminar() {
     const ui = this.userItem();
     if (!ui) return;
@@ -228,6 +444,9 @@ export class DetalleTitulo {
         this.bibliotecaService.eliminarDeBiblioteca(ui.id).subscribe({
           next: () => {
             this.userItem.set(null);
+            this.formatosPropios = [];
+            this.plataformasPropias = [];
+            this.prestamos.set([]);
             this.notificacion.exito('Eliminado', `"${ui.titulo}" se quitó de tu biblioteca.`);
           },
           error: () => {
