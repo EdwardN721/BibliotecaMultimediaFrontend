@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { LoggerService } from '@core/services/logger/logger.service';
 
 /**
  * Lógica común de los formularios de creación de catálogos.
@@ -12,6 +13,7 @@ import { NotificacionService } from '@core/services/notificacion/notificacion.se
 export abstract class NuevoCatalogoBase {
   protected router = inject(Router);
   protected notificacion = inject(NotificacionService);
+  protected logger = inject(LoggerService);
 
   /** Nombre legible de la entidad para los mensajes ("formato", "género"...). */
   protected abstract nombreEntidad: string;
@@ -40,7 +42,7 @@ export abstract class NuevoCatalogoBase {
         this.router.navigate([this.rutaListado]);
       },
       error: (err) => {
-        console.error('Error al registrar:', err);
+        this.logger.error('nuevo-catalogo', 'Error al registrar:', err);
         this.notificacion.error(
           'Error al registrar',
           'Ocurrió un error de comunicación con el servidor.',

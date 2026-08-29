@@ -1,19 +1,19 @@
 import { PROVEEDORES_TEST } from '@testing/test-bed-providers';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { PlataformasComponent } from './plataformas.component';
+import { PlataformaListaComponent } from './plataformas.component';
 
-describe('PlataformasComponent', () => {
-  let component: PlataformasComponent;
-  let fixture: ComponentFixture<PlataformasComponent>;
+describe('PlataformaListaComponent', () => {
+  let component: PlataformaListaComponent;
+  let fixture: ComponentFixture<PlataformaListaComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [PlataformasComponent],
+      imports: [PlataformaListaComponent],
       providers: PROVEEDORES_TEST,
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PlataformasComponent);
+    fixture = TestBed.createComponent(PlataformaListaComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

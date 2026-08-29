@@ -14,6 +14,7 @@ import {
 } from '@core/models/biblioteca.model';
 import { BibliotecaStats } from '@core/models/biblioteca-stats.model';
 import { PosterCardItem } from '@shared/components/user/poster-card/poster-card';
+import { mapearItemBiblioteca, mapearItemCatalogo } from '@core/utils/poster-card-mappers';
 import { ContentRow } from '@shared/components/user/content-row/content-row';
 import { IconoCatalogo } from '@shared/components/user/icono-catalogo/icono-catalogo';
 
@@ -155,31 +156,13 @@ export class Inicio implements OnInit {
   }
 
   mapearBiblioteca(items: RespuestaUserItemDto[]): PosterCardItem[] {
-    return items.map((b) => ({
-      id: b.itemId,
-      userItemId: b.id,
-      titulo: b.titulo,
-      imageUrl: b.imageUrl,
-      subtitulo: [b.mediaType, ...b.formats].filter(Boolean).join(' • '),
-      descripcion: undefined,
-      personalRating: b.personalRating ?? undefined,
-      status: b.status,
-      isFavorite: b.isFavorite,
-      enBiblioteca: true,
-    }));
+    return items.map((item) => mapearItemBiblioteca(item));
   }
 
   mapearCatalogo(items: ItemDto[]): PosterCardItem[] {
     const idsEnBiblioteca = this.enBibliotecaIds();
     return items.map((item) => ({
-      id: item.id,
-      titulo: item.title,
-      imageUrl: item.mainImageUrl,
-      subtitulo: [item.mediaType, ...item.formats.slice(0, 2), item.releaseDate ? new Date(item.releaseDate).getFullYear() : null]
-        .filter(Boolean)
-        .join(' • '),
-      descripcion: item.descripcion,
-      ratingCatalogo: item.ratingPromedio ?? undefined,
+      ...mapearItemCatalogo(item),
       enBiblioteca: idsEnBiblioteca.has(item.id),
     }));
   }

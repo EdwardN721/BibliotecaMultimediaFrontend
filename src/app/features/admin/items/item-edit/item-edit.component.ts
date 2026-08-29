@@ -25,6 +25,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { LoggerService } from '@core/services/logger/logger.service';
 import { SeccionImagenesComponent } from '../seccion-imagenes/seccion-imagenes.component';
 
 @Component({
@@ -54,6 +55,7 @@ export class ItemEditComponent implements OnInit {
   private router: Router = inject(Router);
   private route: ActivatedRoute = inject(ActivatedRoute);
   private notificacion: NotificacionService = inject(NotificacionService);
+  private logger: LoggerService = inject(LoggerService);
 
   private generosService: GenerosService = inject(GenerosService);
   private creadoresService: CreadoresService = inject(CreadoresService);
@@ -107,7 +109,7 @@ export class ItemEditComponent implements OnInit {
         this.enfocarSeccionImagenesSiAplica();
       },
       error: (err) => {
-        console.error('Error:', err);
+        this.logger.error('item-edit', 'Error al obtener el artículo:', err);
         this.notificacion.error('Error al obtener', 'Error al obtener el artículo.');
         this.isLoadingData.set(false);
         this.router.navigate(['/admin/items']);
@@ -149,7 +151,7 @@ export class ItemEditComponent implements OnInit {
         this.isLoadingCatalogos.set(false);
       },
       error: (err) => {
-        console.error('Error al cargar catálogos:', err);
+        this.logger.error('item-edit', 'Error al cargar catálogos:', err);
         this.notificacion.error('Error de Catálogos', 'No se pudieron cargar las opciones.');
         this.isLoadingCatalogos.set(false);
       },
@@ -181,7 +183,7 @@ export class ItemEditComponent implements OnInit {
         this.router.navigate(['/admin/items']);
       },
       error: (err) => {
-        console.error('Error al actualizar el registro:', err);
+        this.logger.error('item-edit', 'Error al actualizar el registro:', err);
         this.notificacion.error('Error al actualizar', err.error?.detail ?? 'Ocurrió un error inesperado.');
         this.isSubmitting.set(false);
       },

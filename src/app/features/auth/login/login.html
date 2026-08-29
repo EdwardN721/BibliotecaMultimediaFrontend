@@ -76,16 +76,6 @@
             </div>
           </li>
         </ul>
-
-        <!-- Stats decorativas -->
-        <div class="relative grid grid-cols-3 gap-3 mt-auto pt-10">
-          @for (stat of stats; track stat.label) {
-            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 backdrop-blur-sm">
-              <p class="text-xl font-black text-white">{{ stat.valor }}</p>
-              <p class="text-[11px] font-semibold uppercase tracking-wider text-zinc-500 mt-0.5">{{ stat.label }}</p>
-            </div>
-          }
-        </div>
       </aside>
 
       <!-- Panel formulario -->

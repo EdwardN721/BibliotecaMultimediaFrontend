@@ -4,6 +4,7 @@ import { ConfirmationService } from 'primeng/api';
 import { FiltroGlobal } from '@core/models/filtoPaginado.model';
 import { PaginacionMetadata, RespuestaPaginada } from '@core/models/paginacion.model';
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { LoggerService } from '@core/services/logger/logger.service';
 
 export const METADATA_VACIA: PaginacionMetadata = {
   paginaActual: 1,
@@ -24,6 +25,7 @@ export const METADATA_VACIA: PaginacionMetadata = {
 export abstract class ListaCatalogoBase<T extends { id: string }> implements OnInit {
   private confirmationService = inject(ConfirmationService);
   protected notificacion = inject(NotificacionService);
+  protected logger = inject(LoggerService);
 
   /** Nombre legible de la entidad para los mensajes ("formato", "género"...). */
   protected abstract nombreEntidad: string;
@@ -64,7 +66,7 @@ export abstract class ListaCatalogoBase<T extends { id: string }> implements OnI
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error(`Error al cargar los ${this.nombreEntidad}:`, err);
+        this.logger.error(`lista-${this.nombreEntidad}`, `Error al cargar los ${this.nombreEntidad}:`, err);
         this.notificacion.error('Error al obtener', 'Ocurrió un error al cargar la información');
         this.errorMessage.set(`No se pudo recuperar el catálogo de ${this.nombreEntidad}`);
         this.isLoading.set(false);
@@ -113,7 +115,7 @@ export abstract class ListaCatalogoBase<T extends { id: string }> implements OnI
               'Operación denegada',
               `No se pudo eliminar el ${this.nombreEntidad}.`,
             );
-            console.error('Error al eliminar:', err);
+            this.logger.error(`lista-${this.nombreEntidad}`, 'Error al eliminar:', err);
           },
         });
       },

@@ -3,6 +3,7 @@ import { FormGroup } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { LoggerService } from '@core/services/logger/logger.service';
 import { extraerNombre } from './nuevo-catalogo.base';
 
 /**
@@ -17,6 +18,7 @@ export abstract class EditarCatalogoBase implements OnInit {
   private router = inject(Router);
   protected route = inject(ActivatedRoute);
   protected notificacion = inject(NotificacionService);
+  protected logger = inject(LoggerService);
 
   /** Nombre legible de la entidad para los mensajes ("formato", "género"...). */
   protected abstract nombreEntidad: string;
@@ -45,7 +47,7 @@ export abstract class EditarCatalogoBase implements OnInit {
         this.isLoadingData.set(false);
       },
       error: (err) => {
-        console.error('Error al cargar el registro:', err);
+        this.logger.error('editar-catalogo', 'Error al cargar el registro:', err);
         this.notificacion.error(
           'Error al cargar',
           'Ocurrió un error de comunicación con el servidor.',
@@ -71,7 +73,7 @@ export abstract class EditarCatalogoBase implements OnInit {
         this.volverAlListado();
       },
       error: (err) => {
-        console.error('Error al actualizar el registro:', err);
+        this.logger.error('editar-catalogo', 'Error al actualizar el registro:', err);
         this.notificacion.error('Error al actualizar', 'Los cambios no se pudieron guardar.');
         this.isSubmitting.set(false);
       },

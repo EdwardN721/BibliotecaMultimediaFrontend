@@ -5,6 +5,7 @@ import { ThemeService } from '@core/services/theme/theme.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
+import { ApiError } from '@core/models/api-error.model';
 
 /** Espejo de las reglas del backend: mínimo 8 caracteres, una mayúscula y un número. */
 const PATRON_CONTRASENA = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
@@ -34,12 +35,6 @@ export class Registro {
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
   showPassword = signal(false);
-
-  stats = [
-    { valor: '+120', label: 'Títulos' },
-    { valor: '5', label: 'Tipos de medio' },
-    { valor: '1 min', label: 'Para empezar' },
-  ];
 
   constructor() {
     // La experiencia auth es cinematográfica: siempre en oscuro
@@ -107,14 +102,10 @@ export class Registro {
           }
           this.isLoading.set(false);
         },
-        error: (err) => {
-          console.error(err);
-          const detalle = err?.error?.errors
-            ? Object.values(err.error.errors as Record<string, string[]>)
-                .flat()
-                .join(' ')
-            : null;
-          this.errorMessage.set(detalle || 'No se pudo completar el registro.');
+        error: (err: unknown) => {
+          this.errorMessage.set(
+            err instanceof ApiError ? err.resumenValidacion : 'No se pudo completar el registro.',
+          );
           this.isLoading.set(false);
         },
       });

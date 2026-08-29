@@ -5,6 +5,7 @@ import { ThemeService } from '@core/services/theme/theme.service';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
+import { LoggerService } from '@core/services/logger/logger.service';
 
 @Component({
   selector: 'app-login',
@@ -18,16 +19,11 @@ export class Login {
   private authService: AuthService = inject(AuthService);
   private router: Router = inject(Router);
   private themeService: ThemeService = inject(ThemeService);
+  private logger: LoggerService = inject(LoggerService);
 
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
   showPassword = signal(false);
-
-  stats = [
-    { valor: '+120', label: 'Títulos' },
-    { valor: '5', label: 'Tipos de medio' },
-    { valor: '24/7', label: 'Tu progreso' },
-  ];
 
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -65,7 +61,7 @@ export class Login {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error(err);
+        this.logger.error('login', 'Error al iniciar sesión:', err);
         this.errorMessage.set('Correo o contraseña incorrectos.');
         this.isLoading.set(false);
       }

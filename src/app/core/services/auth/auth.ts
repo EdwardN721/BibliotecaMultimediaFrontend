@@ -4,6 +4,7 @@ import { AuthResponse, LoginDto, RegistroDto, UserState } from '../../models/aut
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
+import { eliminarToken, guardarToken, obtenerToken } from '@core/utils/token-storage';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +31,7 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap((response) => {
         // 1. Guardamos el token
-        localStorage.setItem('jwt_token', response.token);
+        guardarToken(response.token);
         
         // 2. Ejecutamos nuestra nueva función para decodificar
         this.decodeAndSetUser(response.token);
@@ -42,14 +43,14 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/registrar`, datos).pipe(
       tap((response) => {
         // Auto-login: el backend responde 201 con token + usuario
-        localStorage.setItem('jwt_token', response.token);
+        guardarToken(response.token);
         this.decodeAndSetUser(response.token);
       }),
     );
   }
 
   logout() {
-    localStorage.removeItem('jwt_token');
+    eliminarToken();
     this.userState.set({
       isAuthenticated: false,
       role: null,
@@ -58,7 +59,7 @@ export class AuthService {
   }
 
   private checkInitialState() {
-    const token = localStorage.getItem('jwt_token');
+    const token = obtenerToken();
     if (token) {
       this.decodeAndSetUser(token);
     }

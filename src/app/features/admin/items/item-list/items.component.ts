@@ -12,9 +12,11 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { LoggerService } from '@core/services/logger/logger.service';
 
 @Component({
   selector: 'app-items-list',
+  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -33,6 +35,7 @@ export class ItemsComponent implements OnInit {
   private itemService: ItemService = inject(ItemService);
   private confirmationService: ConfirmationService = inject(ConfirmationService);
   private messageService: MessageService = inject(MessageService);
+  private logger: LoggerService = inject(LoggerService);
 
   items: WritableSignal<ItemDto[]> = signal<ItemDto[]>([]);
   isLoading: WritableSignal<boolean> = signal(true);
@@ -61,7 +64,7 @@ export class ItemsComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Error al cargar el catálogo:', err);
+        this.logger.error('items', 'Error al cargar el catálogo:', err);
         this.messageService.add({
           severity: 'error',
           summary: 'Error al obtener',
@@ -83,10 +86,11 @@ export class ItemsComponent implements OnInit {
     const first = event.first ?? 0;
     this.rows.set(pageSize);
 
+    const campoOrden = Array.isArray(event.sortField) ? event.sortField[0] : event.sortField;
     const miFiltro: FiltroGlobal = {
       terminoBusqueda: this.terminoBusqueda(),
-      ordenadoPor: '',
-      ordenDescendente: true,
+      ordenadoPor: campoOrden ?? '',
+      ordenDescendente: event.sortOrder === -1,
     };
 
     this.itemService.obtenerItems(miFiltro, Math.floor(first / pageSize) + 1, pageSize).subscribe({
@@ -95,7 +99,7 @@ export class ItemsComponent implements OnInit {
         this.totalRecords.set(respuesta.metadata.totalRegistros);
       },
       error: (err) => {
-        console.error('Error al cargar la página:', err);
+        this.logger.error('items', 'Error al cargar la página:', err);
       },
     });
   }
@@ -132,7 +136,7 @@ export class ItemsComponent implements OnInit {
               detail: 'No se pudo eliminar el item. Verifica tu conexión.',
               styleClass: 'p-2 rounded-2xl shadow-xl',
             });
-            console.error('Error al eliminar:', err);
+            this.logger.error('items', 'Error al eliminar:', err);
           },
         });
       },

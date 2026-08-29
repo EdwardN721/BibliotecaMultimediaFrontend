@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -17,9 +18,9 @@ import {
   PeticionAgregarABibliotecaDto,
   RespuestaUserItemDto,
 } from '@core/models/biblioteca.model';
-import { PosterCardItem } from '@shared/components/user/poster-card/poster-card';
-import { PosterCard } from '@shared/components/user/poster-card/poster-card';
+import { PosterCard, PosterCardItem } from '@shared/components/user/poster-card/poster-card';
 import { SkeletonCard } from '@shared/components/user/skeleton-card/skeleton-card';
+import { mapearItemCatalogo } from '@core/utils/poster-card-mappers';
 
 @Component({
   selector: 'app-explorar',
@@ -28,13 +29,17 @@ import { SkeletonCard } from '@shared/components/user/skeleton-card/skeleton-car
   templateUrl: './explorar.html',
   styleUrl: './explorar.css',
 })
-export class Explorar implements OnInit {
+export class Explorar implements OnInit, OnDestroy {
   private itemService: ItemService = inject(ItemService);
   private bibliotecaService: BibliotecaService = inject(BibliotecaService);
   private notificacion: NotificacionService = inject(NotificacionService);
   private tipoMediosService: TipoMediosService = inject(TipoMediosService);
   private generosService: GenerosService = inject(GenerosService);
   private plataformasService: PlataformasService = inject(PlataformasService);
+
+  // Última petición de búsqueda en curso: se cancela antes de lanzar una nueva
+  // para evitar respuestas fuera de orden / race conditions en filtros o paginación.
+  private busquedaSubscription: Subscription | null = null;
 
   tarjetas: WritableSignal<PosterCardItem[]> = signal([]);
   isLoading: WritableSignal<boolean> = signal(true);
@@ -107,6 +112,8 @@ export class Explorar implements OnInit {
       this.isLoading.set(true);
     }
 
+    this.busquedaSubscription?.unsubscribe();
+
     const filtro = {
       terminoBusqueda: this.terminoBusqueda.trim(),
       ordenadoPor: '',
@@ -116,7 +123,7 @@ export class Explorar implements OnInit {
       platformId: this.plataformaSeleccionada || undefined,
     };
 
-    this.itemService.obtenerItems(filtro, this.paginaActual, this.pageSize).subscribe({
+    this.busquedaSubscription = this.itemService.obtenerItems(filtro, this.paginaActual, this.pageSize).subscribe({
       next: (respuesta) => {
         const nuevas = respuesta.registros.map((item) => this.mapear(item));
         this.tarjetas.update((actuales) =>
@@ -134,22 +141,12 @@ export class Explorar implements OnInit {
     });
   }
 
+  ngOnDestroy() {
+    this.busquedaSubscription?.unsubscribe();
+  }
+
   mapear(item: ItemDto): PosterCardItem {
-    return {
-      id: item.id,
-      titulo: item.title,
-      imageUrl: item.mainImageUrl,
-      subtitulo: [
-        item.mediaType,
-        ...item.formats.slice(0, 2),
-        item.releaseDate ? new Date(item.releaseDate).getFullYear() : null,
-        item.platforms.slice(0, 2).join(' / '),
-      ]
-        .filter(Boolean)
-        .join(' • '),
-      descripcion: item.descripcion,
-      ratingCatalogo: item.ratingPromedio ?? undefined,
-    };
+    return mapearItemCatalogo(item);
   }
 
   limpiarFiltros() {

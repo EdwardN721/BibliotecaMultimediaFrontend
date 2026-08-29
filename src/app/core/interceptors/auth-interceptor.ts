@@ -1,8 +1,9 @@
 import { HttpInterceptorFn } from '@angular/common/http';
+import { obtenerToken } from '@core/utils/token-storage';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // 1. Buscamos el token en la bóveda
-  const token = localStorage.getItem('jwt_token');
+  const token = obtenerToken();
 
   // 2. Si existe, clonamos la petición original y le inyectamos la cabecera de Autorización
   if (token) {

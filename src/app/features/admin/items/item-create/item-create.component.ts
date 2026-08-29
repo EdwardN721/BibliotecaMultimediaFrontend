@@ -17,6 +17,7 @@ import { SelectModule } from 'primeng/select';
 
 // Servicios y Modelos
 import { NotificacionService } from '@core/services/notificacion/notificacion.service';
+import { LoggerService } from '@core/services/logger/logger.service';
 import { ItemService } from '@core/services/items/item.service';
 import { GenerosService } from '@core/services/catalogos/generos/generos.service';
 import { CreadoresService } from '@core/services/catalogos/creadores/creadores.service';
@@ -54,6 +55,7 @@ export class ItemCreateComponent implements OnInit {
   private itemService: ItemService = inject(ItemService);
   private router: Router = inject(Router);
   private notificacion: NotificacionService = inject(NotificacionService);
+  private logger: LoggerService = inject(LoggerService);
 
   // Inyección de catálogos
   private generosService: GenerosService = inject(GenerosService);
@@ -114,7 +116,7 @@ export class ItemCreateComponent implements OnInit {
         this.isLoadingCatalogos.set(false);
       },
       error: (err) =>{
-        console.error('Error: ', err)
+        this.logger.error('item-create', 'Error cargando catálogos:', err)
         this.notificacion.error('Error de Catálogos', 'No se pudieron cargar las opciones.');
         this.isLoadingCatalogos.set(false);
       }
@@ -144,7 +146,7 @@ export class ItemCreateComponent implements OnInit {
         });
       },
       error: (err) => {
-        console.error('Error: ', err);
+        this.logger.error('item-create', 'Error al guardar:', err);
         this.notificacion.error(
           'Error al guardar',
           'Hubo un problema de comunicación con el servidor.',

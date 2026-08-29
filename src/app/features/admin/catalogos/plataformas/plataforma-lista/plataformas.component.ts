@@ -28,7 +28,7 @@ import { ListaCatalogoBase } from '@shared/admin/catalogos/lista-catalogo.base';
   templateUrl: './plataformas.component.html',
   styleUrl: './plataformas.component.css',
 })
-export class PlataformasComponent extends ListaCatalogoBase<PlataformaDto> {
+export class PlataformaListaComponent extends ListaCatalogoBase<PlataformaDto> {
   private plataformasService = inject(PlataformasService);
 
   protected override nombreEntidad = 'plataforma';

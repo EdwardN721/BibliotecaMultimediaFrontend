@@ -10,6 +10,8 @@ interface RespuestaUploadChunkDto {
   cargaCompletada: boolean;
   mensaje: string;
   urlFinal?: string;
+  /** Id de la imagen consolidada (null mientras la carga sigue en progreso) */
+  imagenId?: string;
 }
 
 @Injectable({

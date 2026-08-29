@@ -92,11 +92,11 @@ export class BibliotecaService {
   }
 
   marcarFavorito(id: string, isFavorite: boolean): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}/favorito`, isFavorite);
+    return this.http.put<void>(`${this.apiUrl}/${id}/favorito`, { isFavorite });
   }
 
   puntuar(id: string, rating: number): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/${id}/rating`, rating);
+    return this.http.put<void>(`${this.apiUrl}/${id}/rating`, { rating });
   }
 
   // ===== Préstamos =====

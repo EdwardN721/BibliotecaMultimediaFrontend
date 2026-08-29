@@ -13,7 +13,6 @@ import { ImagenItemDto } from '@core/models/item.model';
   selector: 'app-seccion-imagenes',
   standalone: true,
   imports: [CommonModule, FormsModule, ButtonModule, ProgressBarModule, ConfirmDialogModule],
-  providers: [ConfirmationService],
   templateUrl: './seccion-imagenes.component.html',
   styleUrl: './seccion-imagenes.component.css',
 })

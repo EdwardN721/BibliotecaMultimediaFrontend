@@ -3,7 +3,7 @@ export const PLATAFORMAS_ROUTES = [
     path: '',
     loadComponent: () =>
       import('@features/admin/catalogos/plataformas/plataforma-lista/plataformas.component').then(
-        (m) => m.PlataformasComponent,
+        (m) => m.PlataformaListaComponent,
       ),
   },
   {
